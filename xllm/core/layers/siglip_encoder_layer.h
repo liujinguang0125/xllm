@@ -15,35 +15,23 @@ limitations under the License.
 
 #pragma once
 
-#include <torch/torch.h>
-
-#include <cstdint>
-#include <memory>
-
-#include "atb_buffer.h"
+#if defined(USE_NPU)
+#include "npu/npu_siglip_encoder_layer_impl.h"
+#include "pytorch/adapter/utils/utils.h"
+#endif
 
 namespace xllm {
-
-class AtbWorkspace {
+namespace layer {
+class SiglipEncoderLayer
+    : public torch::nn::ModuleHolder<NpuSiglipEncoderLayerImpl> {
  public:
-  AtbWorkspace() = default;
+  using torch::nn::ModuleHolder<NpuSiglipEncoderLayerImpl>::ModuleHolder;
+  using Impl __attribute__((__unused__)) = NpuSiglipEncoderLayerImpl;
 
-  AtbWorkspace(at::Device device);
-
-  ~AtbWorkspace();
-
-  AtbWorkspace(const AtbWorkspace&) = delete;
-
-  AtbWorkspace& operator=(const AtbWorkspace&) = delete;
-
-  AtbWorkspace(AtbWorkspace&&) = default;
-
-  AtbWorkspace& operator=(AtbWorkspace&&) = default;
-
-  void* get_workspace_buffer(uint64_t bufferSize);
-
- private:
-  static std::map<int32_t, std::unique_ptr<AtbBuffer>> buffer_map_;
+  SiglipEncoderLayer(const Context& context, const std::string& prefix = "")
+      : ModuleHolder(
+            std::make_shared<NpuSiglipEncoderLayerImpl>(context, prefix)) {}
 };
 
+}  // namespace layer
 }  // namespace xllm

@@ -21,6 +21,7 @@ limitations under the License.
 #include "framework/state_dict/state_dict.h"
 
 namespace xllm {
+namespace layer {
 
 class MultiheadAttentionImpl : public torch::nn::Module {
  public:
@@ -54,4 +55,5 @@ class MultiheadAttentionImpl : public torch::nn::Module {
 
 TORCH_MODULE(MultiheadAttention);
 
+}  // namespace layer
 }  // namespace xllm

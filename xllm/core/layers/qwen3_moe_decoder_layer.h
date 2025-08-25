@@ -15,35 +15,23 @@ limitations under the License.
 
 #pragma once
 
-#include <torch/torch.h>
-
-#include <cstdint>
-#include <memory>
-
-#include "atb_buffer.h"
+#if defined(USE_NPU)
+#include "npu/npu_qwen3_moe_decoder_layer_impl.h"
+#include "pytorch/adapter/utils/utils.h"
+#endif
 
 namespace xllm {
-
-class AtbWorkspace {
+namespace layer {
+class Qwen3MoeDecoderLayer
+    : public torch::nn::ModuleHolder<NpuQwen3MoeDecoderLayerImpl> {
  public:
-  AtbWorkspace() = default;
+  using torch::nn::ModuleHolder<NpuQwen3MoeDecoderLayerImpl>::ModuleHolder;
+  using Impl __attribute__((__unused__)) = NpuQwen3MoeDecoderLayerImpl;
 
-  AtbWorkspace(at::Device device);
-
-  ~AtbWorkspace();
-
-  AtbWorkspace(const AtbWorkspace&) = delete;
-
-  AtbWorkspace& operator=(const AtbWorkspace&) = delete;
-
-  AtbWorkspace(AtbWorkspace&&) = default;
-
-  AtbWorkspace& operator=(AtbWorkspace&&) = default;
-
-  void* get_workspace_buffer(uint64_t bufferSize);
-
- private:
-  static std::map<int32_t, std::unique_ptr<AtbBuffer>> buffer_map_;
+  Qwen3MoeDecoderLayer(const Context& context, int32_t layer_id)
+      : Qwen3MoeDecoderLayer(
+            std::make_shared<NpuQwen3MoeDecoderLayerImpl>(context, layer_id)) {}
 };
 
+}  // namespace layer
 }  // namespace xllm
