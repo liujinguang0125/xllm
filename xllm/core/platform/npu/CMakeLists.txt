@@ -1,0 +1,35 @@
+include(cc_library)
+include(cc_test)
+
+cc_library(
+  NAME
+    hal_ascend 
+  HDRS
+    atb_buffer.h
+    atb_device_context.h
+    atb_layer_synchronizer.h
+    atb_workspace.h
+  SRCS
+    atb_buffer.cpp
+    atb_device_context.cpp
+    atb_layer_synchronizer.cpp
+    atb_workspace.cpp
+  DEPS
+    :atb_speed_operations
+    :atb_speed_core
+    :atb_speed_models
+    :atb_speed_torch
+    "-Wl,--whole-archive"
+    :atb_torch
+    "-Wl,--no-whole-archive"
+    :kv_cache
+    :prefix_cache
+    :block
+    :parallel_state
+    :state_dict
+    glog::glog
+    gflags::gflags
+    spdlog::spdlog
+    torch
+    torch_npu
+)
