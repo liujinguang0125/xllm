@@ -14,6 +14,7 @@ limitations under the License.
 ==============================================================================*/
 
 #pragma once
+#if defined(USE_NPU)
 #ifdef TORCH_HIGHER_THAN_PTA6
 #include <torch_npu/csrc/core/npu/NPUFormat.h>
 #include <torch_npu/csrc/framework/OpCommand.h>
@@ -21,8 +22,11 @@ limitations under the License.
 #include <torch_npu/csrc/aten/NPUNativeFunctions.h>
 #include <torch_npu/csrc/framework/utils/OpPreparation.h>
 #endif
-
 #include <torch_npu/csrc/libs/init_npu.h>
+
+#include "npu/npu_rms_norm_impl.h"
+#include "pytorch/adapter/utils/utils.h"
+#endif
 
 #include <functional>
 
@@ -36,8 +40,6 @@ limitations under the License.
 #include "framework/model/model_input_params.h"
 #include "framework/state_dict/state_dict.h"
 #include "nlohmann/json.hpp"
-#include "npu/npu_rms_norm_impl.h"
-#include "pytorch/adapter/utils/utils.h"
 
 namespace xllm {
 
