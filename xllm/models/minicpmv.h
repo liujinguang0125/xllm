@@ -216,7 +216,7 @@ class BaseResamplerImpl : public torch::nn::Module {
     ln_kv_->weight.set_data(ln_kv_->weight.to(options));
     ln_kv_->bias.set_data(ln_kv_->bias.to(options));
     // Initialize attention module
-    attn_ = layer::MultiheadAttention(context);
+    attn_ = MultiheadAttention(context);
     options_ = options;
     // Optionally add post projection
     ln_post_ = register_module(
@@ -235,7 +235,7 @@ class BaseResamplerImpl : public torch::nn::Module {
  protected:
   int num_queries_, num_heads_, embed_dim_, kv_dim_;
   torch::Tensor query_;
-  layer::MultiheadAttention attn_{nullptr};
+  MultiheadAttention attn_{nullptr};
   torch::TensorOptions options_;
   torch::nn::LayerNorm ln_q_{nullptr};
   torch::nn::LayerNorm ln_kv_{nullptr};
@@ -717,7 +717,7 @@ class Idefics2EncoderImpl : public torch::nn::Module {
           i >= model_args.max_window_layers()) {
         sliding_window = model_args.sliding_window();
       }
-      auto block = layer::SiglipEncoderLayer(context);
+      auto block = SiglipEncoderLayer(context);
       layers_.push_back(block);
       blocks_->push_back(block);
     }
@@ -748,7 +748,7 @@ class Idefics2EncoderImpl : public torch::nn::Module {
   }
 
  private:
-  std::vector<layer::SiglipEncoderLayer> layers_;
+  std::vector<SiglipEncoderLayer> layers_;
   torch::nn::ModuleList blocks_{nullptr};
 };
 TORCH_MODULE(Idefics2Encoder);

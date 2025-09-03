@@ -39,7 +39,7 @@ limitations under the License.
 #include "npu/npu_rms_norm_impl.h"
 #include "pytorch/adapter/utils/utils.h"
 
-namespace xllm::layer {
+namespace xllm {
 
 class RmsNorm : public torch::nn::ModuleHolder<NpuRmsNormImpl> {
  public:
@@ -50,4 +50,4 @@ class RmsNorm : public torch::nn::ModuleHolder<NpuRmsNormImpl> {
       : ModuleHolder(std::make_shared<NpuRmsNormImpl>(context)) {}
 };
 
-}  // namespace xllm::layer
+}  // namespace xllm

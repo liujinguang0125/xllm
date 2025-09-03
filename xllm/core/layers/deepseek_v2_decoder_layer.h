@@ -21,7 +21,7 @@ limitations under the License.
 #endif
 
 namespace xllm {
-namespace layer {
+
 class DeepseekV2DecoderLayer
     : public torch::nn::ModuleHolder<NpuDeepseekV2DecoderLayerImpl> {
  public:
@@ -37,5 +37,4 @@ class DeepseekV2DecoderLayer
                                                             sm_scale)) {}
 };
 
-}  // namespace layer
 }  // namespace xllm

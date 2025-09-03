@@ -21,7 +21,7 @@ limitations under the License.
 #endif
 
 namespace xllm {
-namespace layer {
+
 class SiglipEncoderLayer
     : public torch::nn::ModuleHolder<NpuSiglipEncoderLayerImpl> {
  public:
@@ -33,5 +33,4 @@ class SiglipEncoderLayer
             std::make_shared<NpuSiglipEncoderLayerImpl>(context, prefix)) {}
 };
 
-}  // namespace layer
 }  // namespace xllm

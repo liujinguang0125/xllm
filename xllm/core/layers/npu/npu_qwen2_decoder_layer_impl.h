@@ -41,7 +41,6 @@ limitations under the License.
 #include "xllm_kernels/models/qwen2/layer/decoder_layer.h"
 
 namespace xllm {
-namespace layer {
 
 enum DecoderLayerTensorId : int {
   IN_NORM_WEIGHT = 0,      // weight
@@ -171,5 +170,4 @@ class NpuQwen2DecoderLayerImpl : public NpuBaseLayer {
   std::vector<std::shared_ptr<std::vector<int>>> decode_vector_storage_;
 };
 
-}  // namespace layer
 }  // namespace xllm

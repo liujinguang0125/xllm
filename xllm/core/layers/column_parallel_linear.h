@@ -21,7 +21,7 @@ limitations under the License.
 #endif
 
 namespace xllm {
-namespace layer {
+
 class ColumnParallelLinear
     : public torch::nn::ModuleHolder<NpuColumnParallelLinearImpl> {
  public:
@@ -32,5 +32,4 @@ class ColumnParallelLinear
       : ModuleHolder(std::make_shared<NpuColumnParallelLinearImpl>(context)) {}
 };
 
-}  // namespace layer
 }  // namespace xllm

@@ -21,7 +21,7 @@ limitations under the License.
 #endif
 
 namespace xllm {
-namespace layer {
+
 class Qwen2dot5VisionEncoderLayer
     : public torch::nn::ModuleHolder<NpuQwen2dot5VisionEncoderLayerImpl> {
  public:
@@ -34,5 +34,4 @@ class Qwen2dot5VisionEncoderLayer
             std::make_shared<NpuQwen2dot5VisionEncoderLayerImpl>(context)) {}
 };
 
-}  // namespace layer
 }  // namespace xllm

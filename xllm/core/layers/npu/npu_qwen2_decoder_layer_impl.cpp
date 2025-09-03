@@ -28,7 +28,6 @@ limitations under the License.
 DECLARE_bool(enable_chunked_prefill);
 
 namespace xllm {
-namespace layer {
 
 const uint64_t WEIGHT_COUNT_PER_LAYER = 50;
 
@@ -493,5 +492,4 @@ void NpuQwen2DecoderLayerImpl::build_node_variant_pack(
   node.variantPack.outTensors.at(0) = internal_tensors_;
 }
 
-}  // namespace layer
 }  // namespace xllm

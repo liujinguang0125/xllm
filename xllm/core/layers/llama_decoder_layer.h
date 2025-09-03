@@ -21,7 +21,7 @@ limitations under the License.
 #endif
 
 namespace xllm {
-namespace layer {
+
 class LlamaDecoderLayer
     : public torch::nn::ModuleHolder<NpuLlamaDecoderLayerImpl> {
  public:
@@ -32,5 +32,4 @@ class LlamaDecoderLayer
       : ModuleHolder(std::make_shared<NpuLlamaDecoderLayerImpl>(context)) {}
 };
 
-}  // namespace layer
 }  // namespace xllm

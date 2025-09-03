@@ -18,7 +18,6 @@ limitations under the License.
 #include "nlohmann/json.hpp"
 
 namespace xllm {
-namespace layer {
 
 NpuSiglipEncoderLayerUpImpl::NpuSiglipEncoderLayerUpImpl(
     const Context& context,
@@ -362,5 +361,4 @@ torch::Tensor NpuSiglipEncoderLayerImpl::forward(torch::Tensor& x) {
   return down_->forward(residual, out);
 }
 
-}  // namespace layer
 }  // namespace xllm

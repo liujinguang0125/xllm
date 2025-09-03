@@ -78,7 +78,7 @@ class DeepseekV2MtpModelImpl : public torch::nn::Module {
                                        options);
     atb_pos_emb_ = AtbRotaryEmbedding(context);
     max_seq_len_ = model_args.max_position_embeddings();
-    attn_mask_ = layer::AttentionMask(
+    attn_mask_ = AttentionMask(
         options.device(), options.dtype().toScalarType(), /*mask_value=*/1);
 
     for (int32_t i = 0; i < model_args.n_layers(); ++i) {
@@ -87,10 +87,10 @@ class DeepseekV2MtpModelImpl : public torch::nn::Module {
       blocks_->push_back(block);
     }
 
-    eh_proj_ = register_module("eh_proj", layer::ColumnParallelLinear(context));
-    enorm_ = register_module("enorm", layer::RmsNorm(context));
-    hnorm_ = register_module("hnorm", layer::RmsNorm(context));
-    final_norm_ = register_module("final_norm", layer::RmsNorm(context));
+    eh_proj_ = register_module("eh_proj", ColumnParallelLinear(context));
+    enorm_ = register_module("enorm", RmsNorm(context));
+    hnorm_ = register_module("hnorm", RmsNorm(context));
+    final_norm_ = register_module("final_norm", RmsNorm(context));
 
     // dp_size_=4;
     dp_size_ = parallel_args.dp_size();
@@ -224,11 +224,11 @@ class DeepseekV2MtpModelImpl : public torch::nn::Module {
   AtbWordEmbedding embed_tokens_{nullptr};
   std::shared_ptr<RotaryEmbedding> pos_emb_{nullptr};
   AtbRotaryEmbedding atb_pos_emb_{nullptr};
-  layer::AttentionMask attn_mask_;
-  layer::ColumnParallelLinear eh_proj_{nullptr};
-  layer::RmsNorm enorm_{nullptr};
-  layer::RmsNorm hnorm_{nullptr};
-  layer::RmsNorm final_norm_{nullptr};
+  AttentionMask attn_mask_;
+  ColumnParallelLinear eh_proj_{nullptr};
+  RmsNorm enorm_{nullptr};
+  RmsNorm hnorm_{nullptr};
+  RmsNorm final_norm_{nullptr};
 };
 TORCH_MODULE(DeepseekV2MtpModel);
 

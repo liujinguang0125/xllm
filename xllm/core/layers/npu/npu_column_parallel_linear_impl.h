@@ -40,7 +40,7 @@ limitations under the License.
 #include "xllm_kernels/core/include/atb_speed/utils/model_factory.h"
 #include "xllm_kernels/operations/fusion/linear/linear_parallel.h"
 
-namespace xllm::layer {
+namespace xllm {
 // Linear layer with column parallelism.
 // The linear layer is defined as Y = XA + b. A is parallelized along
 // its second dimension as A = [A_1, ..., A_p].
@@ -96,4 +96,4 @@ class NpuColumnParallelLinearImpl : public NpuBaseLayer {
 
 // std::shared_ptr<NpuColumnParallelLinearImpl>
 // create_atb_column_parallel_linear_layer(const Context& context);
-}  // namespace xllm::layer
+}  // namespace xllm

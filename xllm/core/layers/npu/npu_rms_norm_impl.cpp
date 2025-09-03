@@ -19,7 +19,7 @@ limitations under the License.
 
 // #include "attn_mask.h"
 
-namespace xllm::layer {
+namespace xllm {
 
 void NpuRmsNormImpl::param_from_args(atb::infer::RmsNormParam& param,
                                      const ModelArgs& args) {
@@ -118,4 +118,4 @@ void NpuRmsNormImpl::build_node_variant_pack(atb_speed::Model::Node& node,
   node.variantPack.outTensors.at(0) = internal_tensors_;
 }
 
-}  // namespace xllm::layer
+}  // namespace xllm

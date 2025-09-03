@@ -17,7 +17,7 @@ limitations under the License.
 
 #include "framework/parallel_state.h"
 
-namespace xllm::layer {
+namespace xllm {
 
 // std::shared_ptr<NpuColumnParallelLinearImpl>
 // create_atb_column_parallel_linear_layer(const Context& context) {
@@ -182,4 +182,4 @@ void NpuColumnParallelLinearImpl::build_node_variant_pack(
 // AtbColumnParallelLinear::AtbColumnParallelLinear(const Context& context)
 //     : ModuleHolder(create_atb_column_parallel_linear_layer(context)) {}
 
-}  // namespace xllm::layer
+}  // namespace xllm

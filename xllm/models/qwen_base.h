@@ -313,14 +313,14 @@ class QWenModelImplBase : public torch::nn::Module {
   int max_seq_len_ = 0;
   int device_id = 0;
   AtbWorkspace work_space_;
-  layer::AttentionMask attn_mask_;
+  AttentionMask attn_mask_;
   AtbRotaryEmbedding atb_pos_emb_{nullptr};
 
   std::vector<int64_t> mrope_section_;
   // test
   //  ParallelEmbedding embed_tokens_{nullptr};
   AtbWordEmbedding embed_tokens_{nullptr};
-  layer::RmsNorm norm_{nullptr};
+  RmsNorm norm_{nullptr};
 
   torch::nn::ModuleList blocks_{nullptr};
   // hold same data but different type as blocks_ to avoid type cast

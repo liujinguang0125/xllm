@@ -16,7 +16,6 @@ limitations under the License.
 #include "multi_head_attention.h"
 
 namespace xllm {
-namespace layer {
 
 MultiheadAttentionImpl::MultiheadAttentionImpl(const Context& context)
     : n_head_(context.get_model_args().n_heads()),
@@ -105,5 +104,4 @@ void MultiheadAttentionImpl::verify_loaded_weights(
       << "out_proj.bias is not loaded for " << prefix + "out_proj.bias";
 }
 
-}  // namespace layer
 }  // namespace xllm

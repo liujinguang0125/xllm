@@ -26,7 +26,6 @@ DECLARE_string(communication_backend);
 DECLARE_int32(expert_parallel_degree);
 
 namespace xllm {
-namespace layer {
 
 enum DecoderLayerTensorId : int {
   IN_INPUT_NORM_WEIGHT = 0,
@@ -1671,5 +1670,4 @@ void NpuDeepseekV2DecoderLayerImpl::build_node_variant_pack(
   }
 }
 
-}  // namespace layer
 }  // namespace xllm

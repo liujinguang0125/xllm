@@ -24,7 +24,6 @@ limitations under the License.
 #endif
 
 namespace xllm {
-namespace layer {
 
 atb::Status NpuBaseLayer::execute_node(atb_speed::Model::Node& node,
                                        atb::Context* context,
@@ -84,5 +83,4 @@ void NpuBaseLayer::run_task(std::string taskName,
   cmd.Run();
 }
 
-}  // namespace layer
 }  // namespace xllm

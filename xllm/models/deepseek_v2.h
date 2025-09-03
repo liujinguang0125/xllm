@@ -52,7 +52,7 @@ class DeepseekV2DecoderLayerImpl : public torch::nn::Module {
                              const float sm_scale) {
     // register submodules
     decoder_layer_ = register_module(
-        "decoder_layer", layer::DeepseekV2DecoderLayer(context, i, sm_scale));
+        "decoder_layer", DeepseekV2DecoderLayer(context, i, sm_scale));
   }
 
   torch::Tensor forward(torch::Tensor x,
@@ -94,7 +94,7 @@ class DeepseekV2DecoderLayerImpl : public torch::nn::Module {
   void update_expert_weight() { decoder_layer_->update_expert_weight(); }
 
  private:
-  layer::DeepseekV2DecoderLayer decoder_layer_{nullptr};
+  DeepseekV2DecoderLayer decoder_layer_{nullptr};
 };
 TORCH_MODULE(DeepseekV2DecoderLayer);
 
@@ -133,9 +133,9 @@ class DeepseekV2ModelImpl : public torch::nn::Module {
     atb_pos_emb_ = AtbRotaryEmbedding(context);
     max_seq_len_ = model_args.max_position_embeddings();
     int32_t mask_value = model_args.dtype() == "bfloat16" ? 1 : -9984;
-    attn_mask_ = layer::AttentionMask(options.device(),
-                                      options.dtype().toScalarType(),
-                                      /*mask_value=*/mask_value);
+    attn_mask_ = AttentionMask(options.device(),
+                               options.dtype().toScalarType(),
+                               /*mask_value=*/mask_value);
 
     for (int32_t i = 0; i < model_args.n_layers(); ++i) {
       auto block = DeepseekV2DecoderLayer(context, i, sm_scale);
@@ -143,7 +143,7 @@ class DeepseekV2ModelImpl : public torch::nn::Module {
       blocks_->push_back(block);
     }
 
-    norm_ = register_module("norm", layer::RmsNorm(context));
+    norm_ = register_module("norm", RmsNorm(context));
     // dp_size_=4;
     dp_size_ = parallel_args.dp_size();
     std::vector<int64_t> indices;
@@ -267,8 +267,8 @@ class DeepseekV2ModelImpl : public torch::nn::Module {
   AtbWordEmbedding embed_tokens_{nullptr};
   std::shared_ptr<RotaryEmbedding> pos_emb_{nullptr};
   AtbRotaryEmbedding atb_pos_emb_{nullptr};
-  layer::AttentionMask attn_mask_;
-  layer::RmsNorm norm_{nullptr};
+  AttentionMask attn_mask_;
+  RmsNorm norm_{nullptr};
 };
 TORCH_MODULE(DeepseekV2Model);
 

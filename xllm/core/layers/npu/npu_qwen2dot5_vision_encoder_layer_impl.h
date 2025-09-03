@@ -41,7 +41,6 @@ limitations under the License.
 #include "xllm_kernels/models/qwen2_5/vision_encoder/encoder_layer.h"
 
 namespace xllm {
-namespace layer {
 
 enum VisionEncoderLayerTensorId : int {
   IN_INPUT_NORM_WEIGHT = 0,
@@ -159,5 +158,4 @@ class NpuQwen2dot5VisionEncoderLayerImpl : public NpuBaseLayer {
 // create_qwen2_5_vision_encoder_layer(
 //     const Context& context);
 
-}  // namespace layer
 }  // namespace xllm

@@ -24,7 +24,6 @@ limitations under the License.
 #include "xllm_kernels/pytorch/atb_torch/core/include/graph_operation.h"
 
 namespace xllm {
-namespace layer {
 
 class NpuSiglipEncoderLayerUpImpl : public NpuBaseLayer {
  public:
@@ -121,5 +120,4 @@ class NpuSiglipEncoderLayerImpl : public NpuBaseLayer {
   NpuSiglipEncoderLayerDown down_{nullptr};
 };
 
-}  // namespace layer
 }  // namespace xllm

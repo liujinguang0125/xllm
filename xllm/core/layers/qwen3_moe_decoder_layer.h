@@ -21,7 +21,7 @@ limitations under the License.
 #endif
 
 namespace xllm {
-namespace layer {
+
 class Qwen3MoeDecoderLayer
     : public torch::nn::ModuleHolder<NpuQwen3MoeDecoderLayerImpl> {
  public:
@@ -33,5 +33,4 @@ class Qwen3MoeDecoderLayer
             std::make_shared<NpuQwen3MoeDecoderLayerImpl>(context, layer_id)) {}
 };
 
-}  // namespace layer
 }  // namespace xllm
