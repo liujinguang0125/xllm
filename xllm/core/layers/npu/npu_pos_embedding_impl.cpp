@@ -13,36 +13,28 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#include "pos_embedding.h"
+#include "npu_pos_embedding_impl.h"
 
 #include <glog/logging.h>
 
-namespace xllm::hf {
-std::shared_ptr<AtbRotaryEmbeddingImpl> create_pos_embedding_layer(
-    const Context& context) {
-  return std::make_shared<AtbRotaryEmbeddingImpl>(context);
-}
+namespace xllm {
 
-AtbRotaryEmbeddingImpl::AtbRotaryEmbeddingImpl(const Context& context)
-    : ATBBase(context) {
+NpuRotaryEmbeddingImpl::NpuRotaryEmbeddingImpl(const Context& context)
+    : NpuBaseLayer(context) {
   atOutTensors_.resize(2);
   dtype_ = c10::typeMetaToScalarType(context.get_tensor_options().dtype());
   init_layer();
 }
 
-int64_t AtbRotaryEmbeddingImpl::init_layer() {
-  ATBBase::name_ = "rotary_embedding_layer";
+int64_t NpuRotaryEmbeddingImpl::init_layer() {
+  NpuBaseLayer::name_ = "rotary_embedding_layer";
   modelName_ = "llm";
-  runTaskFunc_ = std::bind(&AtbRotaryEmbeddingImpl::run_task,
-                           this,
-                           std::placeholders::_1,
-                           std::placeholders::_2);
   CHECK_OPERATION_STATUS_RETURN(init_node(embedding_node_));
 
   return atb::NO_ERROR;
 }
 
-int64_t AtbRotaryEmbeddingImpl::init_node(atb_speed::Model::Node& node) {
+int64_t NpuRotaryEmbeddingImpl::init_node(atb_speed::Model::Node& node) {
   atb::Operation* operation = nullptr;
   CHECK_OPERATION_STATUS_RETURN(
       atb_speed::common::PositionalEmbeddingGatherV2(&operation));
@@ -76,7 +68,7 @@ int64_t AtbRotaryEmbeddingImpl::init_node(atb_speed::Model::Node& node) {
   return atb::NO_ERROR;
 }
 
-torch::Tensor AtbRotaryEmbeddingImpl::forward(const torch::Tensor& cos_sin_pos,
+torch::Tensor NpuRotaryEmbeddingImpl::forward(const torch::Tensor& cos_sin_pos,
                                               const torch::Tensor& position,
                                               atb::Context* context,
                                               AtbWorkspace& workspace,
@@ -90,7 +82,7 @@ torch::Tensor AtbRotaryEmbeddingImpl::forward(const torch::Tensor& cos_sin_pos,
   return atOutTensors_.at(0);
 }
 
-void AtbRotaryEmbeddingImpl::build_node_variant_pack(
+void NpuRotaryEmbeddingImpl::build_node_variant_pack(
     atb_speed::Model::Node& node,
     const torch::Tensor& cos_sin_pos,
     const torch::Tensor& position) {
@@ -119,7 +111,4 @@ void AtbRotaryEmbeddingImpl::build_node_variant_pack(
       atb_speed::Utils::AtTensor2Tensor(atOutTensors_.at(0));
 }
 
-AtbRotaryEmbedding::AtbRotaryEmbedding(const Context& context)
-    : ModuleHolder(create_pos_embedding_layer(context)) {}
-
-}  // namespace xllm::hf
+}  // namespace xllm

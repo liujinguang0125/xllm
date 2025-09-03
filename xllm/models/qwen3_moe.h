@@ -22,7 +22,7 @@ limitations under the License.
 #include "core/layers/qwen3_moe_decoder_layer.h"
 #include "qwen_base.h"
 
-namespace xllm::hf {
+namespace xllm {
 
 using torch::indexing::None;
 using ISlice = torch::indexing::Slice;
@@ -96,7 +96,7 @@ class Qwen3MoeModelImpl : public torch::nn::Module {
     device_ = options.device();
     dtype_ = options.dtype().toScalarType();
     num_speculative_tokens_ = model_args.num_speculative_tokens();
-    embed_tokens_ = register_module("embed_tokens", AtbWordEmbedding(context));
+    embed_tokens_ = register_module("embed_tokens", WordEmbedding(context));
 
     atb_pos_emb_ = AtbRotaryEmbedding(context);
     cos_sin_ =
@@ -217,9 +217,9 @@ class Qwen3MoeModelImpl : public torch::nn::Module {
     norm_->merge_loaded_weights();
   }
 
-  AtbWordEmbedding get_word_embedding() { return embed_tokens_; }
+  WordEmbedding get_word_embedding() { return embed_tokens_; }
 
-  void set_word_embedding(AtbWordEmbedding& word_embedding) {
+  void set_word_embedding(WordEmbedding& word_embedding) {
     embed_tokens_ = word_embedding;
   }
 
@@ -236,7 +236,7 @@ class Qwen3MoeModelImpl : public torch::nn::Module {
   int32_t num_speculative_tokens_ = 0;
   at::Device device_;
   torch::Dtype dtype_;
-  AtbWordEmbedding embed_tokens_{nullptr};
+  WordEmbedding embed_tokens_{nullptr};
   AttentionMask attn_mask_;
   RmsNorm norm_{nullptr};
   torch::Tensor cos_sin_;
@@ -256,7 +256,7 @@ class Qwen3MoeForCausalLMImpl : public torch::nn::Module {
     void* stream = c10_npu::getCurrentNPUStream(device_id).stream();
     context_->SetExecuteStream(stream);
     context_->SetAsyncTilingCopyStatus(true);
-    lm_head_ = register_module("lm_head", LlmHead(context));
+    lm_head_ = register_module("lm_head", LmHead(context));
   }
 
   // tokens: [num_tokens]
@@ -300,19 +300,19 @@ class Qwen3MoeForCausalLMImpl : public torch::nn::Module {
   }
   virtual void update_expert_weight(int32_t layer_id) { return; }
 
-  LlmHead get_lm_head() { return lm_head_; }
+  LmHead get_lm_head() { return lm_head_; }
 
-  void set_lm_head(LlmHead& head) { lm_head_ = head; }
+  void set_lm_head(LmHead& head) { lm_head_ = head; }
 
-  AtbWordEmbedding get_word_embedding() { return model_->get_word_embedding(); }
+  WordEmbedding get_word_embedding() { return model_->get_word_embedding(); }
 
-  void set_word_embedding(AtbWordEmbedding& word_embedding) {
+  void set_word_embedding(WordEmbedding& word_embedding) {
     model_->set_word_embedding(word_embedding);
   }
 
  private:
   Qwen3MoeModel model_{nullptr};
-  LlmHead lm_head_{nullptr};
+  LmHead lm_head_{nullptr};
   AtbWorkspace work_space_;
   atb::Context* context_;
 };
@@ -358,4 +358,4 @@ REGISTER_MODEL_ARGS(qwen3_moe, [&] {
 
   SET_ARG(stop_token_ids, std::unordered_set<int32_t>({args->eos_token_id()}));
 });
-}  // namespace xllm::hf
+}  // namespace xllm

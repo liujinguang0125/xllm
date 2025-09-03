@@ -13,15 +13,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#include "atb_word_embedding_impl.h"
+#include "npu_word_embedding_impl.h"
 
 #include <gflags/gflags.h>
 #include <glog/logging.h>
 // DECLARE_string(rank_tablefile);
 DECLARE_string(communication_backend);
-namespace xllm::hf {
+namespace xllm {
 
-void AtbWordEmbeddingImpl::param_from_args(
+void NpuWordEmbeddingImpl::param_from_args(
     atb_speed::common::WordEmbeddingParam& param,
     const xllm::ModelArgs& args,
     const xllm::ParallelArgs& parallel_args) {
@@ -42,8 +42,8 @@ void AtbWordEmbeddingImpl::param_from_args(
   // param.tensorParallelInfo.rankTableFile = FLAGS_rank_tablefile;
 }
 
-AtbWordEmbeddingImpl::AtbWordEmbeddingImpl(const Context& context)
-    : ATBBase(context) {
+NpuWordEmbeddingImpl::NpuWordEmbeddingImpl(const Context& context)
+    : NpuBaseLayer(context) {
   auto model_args = context.get_model_args();
   auto parallel_args = context.get_parallel_args();
   auto options = context.get_tensor_options();
@@ -56,19 +56,19 @@ AtbWordEmbeddingImpl::AtbWordEmbeddingImpl(const Context& context)
   at_weight_tensors_[0] = torch::zeros({1}).to(options);
 }
 
-void AtbWordEmbeddingImpl::verify_loaded_weights(
+void NpuWordEmbeddingImpl::verify_loaded_weights(
     const std::string weight_str) const {
   CHECK(at_weight_tensors_[0].sizes() != std::vector<int64_t>({1}))
       << "weight is not loaded for " << weight_str;
 }
 
-void AtbWordEmbeddingImpl::merge_loaded_weights() {
+void NpuWordEmbeddingImpl::merge_loaded_weights() {
   atb_weight_tensors_[0] =
       atb_speed::Utils::AtTensor2Tensor(at_weight_tensors_[0]);
   init_layer();
 }
 
-void AtbWordEmbeddingImpl::load_state_dict(const StateDict& state_dict) {
+void NpuWordEmbeddingImpl::load_state_dict(const StateDict& state_dict) {
   if (dp_size_ > 1) {
     set_weight(
         state_dict, "weight", 0, 1, dp_local_tp_rank_, dp_local_tp_size_);
@@ -77,18 +77,14 @@ void AtbWordEmbeddingImpl::load_state_dict(const StateDict& state_dict) {
   }
 }
 
-int64_t AtbWordEmbeddingImpl::init_layer() {
-  ATBBase::name_ = "word_embedding_layer";
+int64_t NpuWordEmbeddingImpl::init_layer() {
+  NpuBaseLayer::name_ = "word_embedding_layer";
   modelName_ = "llm";
-  runTaskFunc_ = std::bind(&AtbWordEmbeddingImpl::run_task,
-                           this,
-                           std::placeholders::_1,
-                           std::placeholders::_2);
   CHECK_OPERATION_STATUS_RETURN(init_node(embedding_node_, embedding_param_));
   return atb::NO_ERROR;
 }
 
-int64_t AtbWordEmbeddingImpl::init_node(
+int64_t NpuWordEmbeddingImpl::init_node(
     atb_speed::Model::Node& node,
     atb_speed::common::WordEmbeddingParam& param) {
   atb::Operation* operation = nullptr;
@@ -115,7 +111,7 @@ int64_t AtbWordEmbeddingImpl::init_node(
   return atb::NO_ERROR;
 }
 
-torch::Tensor AtbWordEmbeddingImpl::forward(const torch::Tensor& x,
+torch::Tensor NpuWordEmbeddingImpl::forward(const torch::Tensor& x,
                                             atb::Context* context,
                                             AtbWorkspace& workspace,
                                             int nodeId) {
@@ -128,7 +124,7 @@ torch::Tensor AtbWordEmbeddingImpl::forward(const torch::Tensor& x,
   return atOutTensors_.at(0);
 }
 
-void AtbWordEmbeddingImpl::build_node_variant_pack(atb_speed::Model::Node& node,
+void NpuWordEmbeddingImpl::build_node_variant_pack(atb_speed::Model::Node& node,
                                                    const torch::Tensor& x) {
   internalTensors = atb_speed::Utils::AtTensor2Tensor(x);
   // node.outTensors[0] = &internalTensors;
@@ -158,4 +154,4 @@ void AtbWordEmbeddingImpl::build_node_variant_pack(atb_speed::Model::Node& node,
       atb_speed::Utils::AtTensor2Tensor(atOutTensors_.at(0));
 }
 
-}  // namespace xllm::hf
+}  // namespace xllm

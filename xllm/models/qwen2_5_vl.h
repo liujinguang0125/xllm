@@ -23,7 +23,7 @@ limitations under the License.
 
 #include "core/framework/kv_cache/kv_cache.h"
 #include "core/framework/model/model_input_params.h"
-#include "core/layers/npu/llm_head.h"
+#include "core/layers/lm_head.h"
 #include "core/layers/qwen2_decoder_layer.h"
 #include "core/layers/qwen2dot5_vision_decode_layer.h"
 #include "core/layers/rms_norm.h"
@@ -33,7 +33,7 @@ limitations under the License.
 #include "qwen2.h"
 #include "xllm_kernels/core/include/atb_speed/log.h"
 
-namespace xllm::hf {
+namespace xllm {
 
 #define PrintTensor(tensor) print_tensor(tensor, #tensor, 10, true, false);
 
@@ -771,14 +771,14 @@ class Qwen2_5_VLForConditionalGenerationImpl : public torch::nn::Module {
     }
   }
 
-  LlmHead get_lm_head() { return language_model_->get_lm_head(); }
-  void set_lm_head(LlmHead& head) { language_model_->set_lm_head(head); }
+  LmHead get_lm_head() { return language_model_->get_lm_head(); }
+  void set_lm_head(LmHead& head) { language_model_->set_lm_head(head); }
 
-  AtbWordEmbedding get_word_embedding() {
+  WordEmbedding get_word_embedding() {
     return language_model_->get_word_embedding();
   }
 
-  void set_word_embedding(AtbWordEmbedding& word_embedding) {
+  void set_word_embedding(WordEmbedding& word_embedding) {
     language_model_->set_word_embedding(word_embedding);
   }
 
@@ -851,4 +851,4 @@ REGISTER_MODEL_ARGS(qwen2_5_vl, [&] {
   LOAD_ARG(rope_scaling_mrope_section, "rope_scaling.mrope_section");
   LOAD_ARG_OR(vocab_size, "vocab_size", 152064);
 });
-}  // namespace xllm::hf
+}  // namespace xllm

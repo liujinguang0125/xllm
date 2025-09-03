@@ -13,16 +13,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#include "atb_head_impl.h"
+#include "npu_lm_head_impl.h"
 
 #include <gflags/gflags.h>
 #include <glog/logging.h>
 DECLARE_string(rank_tablefile);
 DECLARE_string(communication_backend);
 
-namespace xllm::hf {
+namespace xllm {
 
-void AtbLmHeadImpl::param_from_args(atb_speed::common::LmHeadParam& param,
+void NpuLmHeadImpl::param_from_args(atb_speed::common::LmHeadParam& param,
                                     const ModelArgs& args,
                                     const ParallelArgs& parallel_args,
                                     bool isPrefill) {
@@ -68,13 +68,13 @@ void AtbLmHeadImpl::param_from_args(atb_speed::common::LmHeadParam& param,
   }
 }
 
-AtbLmHeadImpl::AtbLmHeadImpl(const Context& context) : ATBBase(context) {
-  param_from_args(llm_head_param_prefill_,
+NpuLmHeadImpl::NpuLmHeadImpl(const Context& context) : NpuBaseLayer(context) {
+  param_from_args(lm_head_param_prefill_,
                   context.get_model_args(),
                   context.get_parallel_args(),
                   true);
 
-  param_from_args(llm_head_param_decode_,
+  param_from_args(lm_head_param_decode_,
                   context.get_model_args(),
                   context.get_parallel_args(),
                   false);
@@ -93,20 +93,20 @@ AtbLmHeadImpl::AtbLmHeadImpl(const Context& context) : ATBBase(context) {
   placeholder_ = atb_speed::Utils::AtTensor2Tensor(torch_placeholder_);
 }
 
-void AtbLmHeadImpl::verify_loaded_weights(const std::string weight_str) const {
+void NpuLmHeadImpl::verify_loaded_weights(const std::string weight_str) const {
   // std::cout<<at_weight_tensors_[0]<<std::endl;
   // std::cout<<at_weight_tensors_[0].sizes()<<std::endl;
   CHECK(at_weight_tensors_[0].sizes() != std::vector<int64_t>({1}))
-      << "final llm_head weight is not loaded for " << weight_str;
+      << "final lm_head weight is not loaded for " << weight_str;
 }
 
-void AtbLmHeadImpl::merge_loaded_weights() {
+void NpuLmHeadImpl::merge_loaded_weights() {
   atb_weight_tensors_[0] =
       atb_speed::Utils::AtTensor2Tensor(at_weight_tensors_[0]);
   init_layer();
 }
 
-void AtbLmHeadImpl::load_state_dict(const StateDict& state_dict) {
+void NpuLmHeadImpl::load_state_dict(const StateDict& state_dict) {
   // set_weight(state_dict, "weight", 0, 0);
   if (dp_size_ > 1) {
     set_weight(
@@ -116,22 +116,18 @@ void AtbLmHeadImpl::load_state_dict(const StateDict& state_dict) {
   }
 }
 
-int64_t AtbLmHeadImpl::init_layer() {
-  ATBBase::name_ = "llm_head_layer";
-  model_name_ = "llm";
-  runTaskFunc_ = std::bind(&AtbLmHeadImpl::run_task,
-                           this,
-                           std::placeholders::_1,
-                           std::placeholders::_2);
+int64_t NpuLmHeadImpl::init_layer() {
+  NpuBaseLayer::name_ = "lm_head_layer";
+  model_name_ = "lm";
   CHECK_OPERATION_STATUS_RETURN(
-      init_node(llm_head_node_prefill_, llm_head_param_prefill_));
+      init_node(lm_head_node_prefill_, lm_head_param_prefill_));
   CHECK_OPERATION_STATUS_RETURN(
-      init_node(llm_head_node_decode_, llm_head_param_decode_));
+      init_node(lm_head_node_decode_, lm_head_param_decode_));
 
   return atb::NO_ERROR;
 }
 
-int64_t AtbLmHeadImpl::init_node(atb_speed::Model::Node& node,
+int64_t NpuLmHeadImpl::init_node(atb_speed::Model::Node& node,
                                  atb_speed::common::LmHeadParam& param) {
   atb::Operation* operation = nullptr;
   atb::Status atbStatus = atb_speed::common::LmHead(param, &operation);
@@ -160,30 +156,30 @@ int64_t AtbLmHeadImpl::init_node(atb_speed::Model::Node& node,
   return atb::NO_ERROR;
 }
 
-torch::Tensor AtbLmHeadImpl::forward(const torch::Tensor& hidden_states,
+torch::Tensor NpuLmHeadImpl::forward(const torch::Tensor& hidden_states,
                                      const torch::Tensor& seleted_idxes,
                                      atb::Context* context,
                                      AtbWorkspace& workspace,
                                      int nodeId) {
   atb::Status st;
-  build_node_variant_pack(llm_head_node_prefill_, hidden_states, seleted_idxes);
-  st = execute_node(llm_head_node_prefill_, context, workspace, nodeId);
+  build_node_variant_pack(lm_head_node_prefill_, hidden_states, seleted_idxes);
+  st = execute_node(lm_head_node_prefill_, context, workspace, nodeId);
   // if (is_prefill) {
-  //   build_node_variant_pack(llm_head_node_prefill_,
-  //   hidden_states,seleted_idxes); st = execute_node(llm_head_node_prefill_,
+  //   build_node_variant_pack(lm_head_node_prefill_,
+  //   hidden_states,seleted_idxes); st = execute_node(lm_head_node_prefill_,
   //   context, workspace ,nodeId);
   // } else {
-  //   build_node_variant_pack(llm_head_node_decode_,
-  //   hidden_states,seleted_idxes); st = execute_node(llm_head_node_decode_,
+  //   build_node_variant_pack(lm_head_node_decode_,
+  //   hidden_states,seleted_idxes); st = execute_node(lm_head_node_decode_,
   //   context, workspace ,nodeId);
   // }
   // c10_npu::NPUCachingAllocator::emptyCache();
   LOG_IF(FATAL, st != 0) << model_name_
-                         << "execute llmhead node fail, error code: " << st;
+                         << "execute lmhead node fail, error code: " << st;
   return atOutTensors_[0];
 }
 
-void AtbLmHeadImpl::build_node_variant_pack(
+void NpuLmHeadImpl::build_node_variant_pack(
     atb_speed::Model::Node& node,
     const torch::Tensor& hidden_states,
     const torch::Tensor& seleted_idxes) {
@@ -234,4 +230,4 @@ void AtbLmHeadImpl::build_node_variant_pack(
       atb_speed::Utils::AtTensor2Tensor(atOutTensors_.at(0));
 }
 
-}  // namespace xllm::hf
+}  // namespace xllm

@@ -29,10 +29,10 @@ limitations under the License.
 #include "core/layers/attention_mask.h"
 #include "core/layers/column_parallel_linear.h"
 #include "core/layers/deepseek_v2_decoder_layer.h"
-#include "core/layers/npu/llm_head.h"
-#include "core/layers/npu/pos_embedding.h"
-#include "core/layers/npu/word_embedding.h"
+#include "core/layers/lm_head.h"
+#include "core/layers/pos_embedding.h"
 #include "core/layers/rms_norm.h"
+#include "core/layers/word_embedding.h"
 #include "deepseek_v2.h"
 #include "framework/model/model_input_params.h"
 #include "model_registry.h"
@@ -41,7 +41,7 @@ limitations under the License.
 // ref to:
 // https://github.com/vllm-project/vllm/blob/v0.6.6/vllm/model_executor/models/deepseek_v2.py
 
-namespace xllm::hf {
+namespace xllm {
 
 class DeepseekV2MtpModelImpl : public torch::nn::Module {
  public:
@@ -58,7 +58,7 @@ class DeepseekV2MtpModelImpl : public torch::nn::Module {
     // register submodules
     // embed_tokens_ = register_module(
     //     "embed_tokens",
-    //     AtbWordEmbedding(context));
+    //     WordEmbedding(context));
 
     // rotary positional embedding
     auto inv_freq = rotary::apply_deepseek_yarn_rope_scaling(
@@ -204,9 +204,9 @@ class DeepseekV2MtpModelImpl : public torch::nn::Module {
     final_norm_->merge_loaded_weights();
   }
 
-  AtbWordEmbedding get_word_embedding() { return embed_tokens_; }
+  WordEmbedding get_word_embedding() { return embed_tokens_; }
 
-  void set_word_embedding(AtbWordEmbedding& word_embedding) {
+  void set_word_embedding(WordEmbedding& word_embedding) {
     embed_tokens_ = word_embedding;
   }
 
@@ -221,7 +221,7 @@ class DeepseekV2MtpModelImpl : public torch::nn::Module {
   nlohmann::json mapping_data_;
   int32_t num_experts_per_tok_;
   at::Device device_;
-  AtbWordEmbedding embed_tokens_{nullptr};
+  WordEmbedding embed_tokens_{nullptr};
   std::shared_ptr<RotaryEmbedding> pos_emb_{nullptr};
   AtbRotaryEmbedding atb_pos_emb_{nullptr};
   AttentionMask attn_mask_;
@@ -246,7 +246,7 @@ class DeepseekV2MtpForCausalLMImpl : public torch::nn::Module {
     context_->SetExecuteStream(stream);
     context_->SetAsyncTilingCopyStatus(true);
     // lm_head_ = register_module(
-    //     "lm_head", LlmHead(context));
+    //     "lm_head", LmHead(context));
   }
 
   // tokens: [num_tokens]
@@ -289,19 +289,19 @@ class DeepseekV2MtpForCausalLMImpl : public torch::nn::Module {
     return;
   }
   void update_expert_weight(int32_t layer_id) { return; }
-  LlmHead get_lm_head() { return lm_head_; }
+  LmHead get_lm_head() { return lm_head_; }
 
-  void set_lm_head(LlmHead& head) { lm_head_ = head; }
+  void set_lm_head(LmHead& head) { lm_head_ = head; }
 
-  AtbWordEmbedding get_word_embedding() { return model_->get_word_embedding(); }
+  WordEmbedding get_word_embedding() { return model_->get_word_embedding(); }
 
-  void set_word_embedding(AtbWordEmbedding& word_embedding) {
+  void set_word_embedding(WordEmbedding& word_embedding) {
     model_->set_word_embedding(word_embedding);
   }
 
  private:
   DeepseekV2MtpModel model_{nullptr};
-  LlmHead lm_head_{nullptr};
+  LmHead lm_head_{nullptr};
   AtbWorkspace work_space_;
   atb::Context* context_;
 };
@@ -367,4 +367,4 @@ REGISTER_MODEL_ARGS(deepseek_v3_mtp, [&] {
 
   SET_ARG(stop_token_ids, std::unordered_set<int32_t>({1}));
 });
-}  // namespace xllm::hf
+}  // namespace xllm

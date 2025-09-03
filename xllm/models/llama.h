@@ -29,15 +29,15 @@ limitations under the License.
 #include "core/framework/parallel_state.h"
 #include "core/layers/attention_mask.h"
 #include "core/layers/llama_decoder_layer.h"
-#include "core/layers/npu/llm_head.h"
-#include "core/layers/npu/word_embedding.h"
+#include "core/layers/lm_head.h"
 #include "core/layers/rms_norm.h"
+#include "core/layers/word_embedding.h"
 #include "core/util/tensor_helper.h"
 #include "model_registry.h"
 #include "xllm_kernels/core/include/atb_speed/log.h"
 
 // llama2 model compatible with huggingface weights
-namespace xllm::hf {
+namespace xllm {
 
 class LlamaDecoderLayerImpl : public torch::nn::Module {
  public:
@@ -124,7 +124,7 @@ class LlamaModelImpl : public torch::nn::Module {
     blocks_ = register_module("layers", torch::nn::ModuleList());
     layers_.reserve(context.get_model_args().n_layers());
     work_space_ = AtbWorkspace(options.device());
-    embed_tokens_ = register_module("embed_tokens", AtbWordEmbedding(context));
+    embed_tokens_ = register_module("embed_tokens", WordEmbedding(context));
     norm_ = register_module("norm", RmsNorm(context));
 
     std::tie(cos_pos_, sin_pos_) =
@@ -241,9 +241,9 @@ class LlamaModelImpl : public torch::nn::Module {
     norm_->merge_loaded_weights();
   }
 
-  AtbWordEmbedding get_word_embedding() { return embed_tokens_; }
+  WordEmbedding get_word_embedding() { return embed_tokens_; }
 
-  void set_word_embedding(AtbWordEmbedding& word_embedding) {
+  void set_word_embedding(WordEmbedding& word_embedding) {
     embed_tokens_ = word_embedding;
   }
 
@@ -255,7 +255,7 @@ class LlamaModelImpl : public torch::nn::Module {
   int device_id_ = 0;
   AtbWorkspace work_space_;
   AttentionMask attn_mask_;
-  AtbWordEmbedding embed_tokens_{nullptr};
+  WordEmbedding embed_tokens_{nullptr};
   RmsNorm norm_{nullptr};
 
   torch::nn::ModuleList blocks_{nullptr};
@@ -277,7 +277,7 @@ class LlamaForCausalLMImpl : public torch::nn::Module {
     void* stream = c10_npu::getCurrentNPUStream(device_id_).stream();
     context_->SetExecuteStream(stream);
     context_->SetAsyncTilingCopyStatus(true);
-    lm_head_ = register_module("lm_head", LlmHead(context));
+    lm_head_ = register_module("lm_head", LmHead(context));
   }
   // tokens: [num_tokens]
   // positions: [num_tokens] token pos in the sequence
@@ -317,13 +317,13 @@ class LlamaForCausalLMImpl : public torch::nn::Module {
   }
   void update_expert_weight(int32_t layer_id) { return; }
 
-  LlmHead get_lm_head() { return lm_head_; }
+  LmHead get_lm_head() { return lm_head_; }
 
-  void set_lm_head(LlmHead& head) { lm_head_ = head; }
+  void set_lm_head(LmHead& head) { lm_head_ = head; }
 
-  AtbWordEmbedding get_word_embedding() { return model_->get_word_embedding(); }
+  WordEmbedding get_word_embedding() { return model_->get_word_embedding(); }
 
-  void set_word_embedding(AtbWordEmbedding& word_embedding) {
+  void set_word_embedding(WordEmbedding& word_embedding) {
     model_->set_word_embedding(word_embedding);
   }
 
@@ -331,7 +331,7 @@ class LlamaForCausalLMImpl : public torch::nn::Module {
   // parameter members, must be registered
   LlamaModel model_{nullptr};
   int device_id_ = 0;
-  LlmHead lm_head_{nullptr};
+  LmHead lm_head_{nullptr};
   AtbWorkspace work_space_;
   atb::Context* context_;
 };
@@ -393,4 +393,4 @@ REGISTER_MODEL_ARGS(llama, [&] {
   });
 });
 
-}  // namespace xllm::hf
+}  // namespace xllm

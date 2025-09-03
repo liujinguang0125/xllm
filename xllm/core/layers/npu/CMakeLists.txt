@@ -6,12 +6,9 @@ cc_library(
   NAME
     npu_layers 
   HDRS
-    atb_base.h
-    word_embedding.h
-    atb_word_embedding_impl.h
-    pos_embedding.h
-    llm_head.h
-    atb_head_impl.h
+    npu_word_embedding_impl.h
+    npu_pos_embedding_impl.h
+    npu_lm_head_impl.h
     $<$<BOOL:${USE_A2}>:npu_qwen2dot5_vision_encoder_layer_impl.h>
     $<$<BOOL:${USE_A2}>:npu_qwen3_moe_decoder_layer_impl.h>
     # atb_parallel_linear.h
@@ -26,14 +23,11 @@ cc_library(
     npu_rms_norm_impl.h
     npu_siglip_encoder_layer_impl.h
   SRCS
+    npu_word_embedding_impl.cpp
+    npu_pos_embedding_impl.cpp
+    npu_lm_head_impl.cpp
     $<$<BOOL:${USE_A2}>:npu_qwen2dot5_vision_encoder_layer_impl.cpp>
     $<$<BOOL:${USE_A2}>:npu_qwen3_moe_decoder_layer_impl.cpp>
-    atb_base.cpp
-    word_embedding.cpp
-    atb_word_embedding_impl.cpp
-    pos_embedding.cpp
-    llm_head.cpp
-    atb_head_impl.cpp
     # atb_parallel_linear.cpp
     buffer/atb_buffer.cpp
     buffer/atb_workspace.cpp

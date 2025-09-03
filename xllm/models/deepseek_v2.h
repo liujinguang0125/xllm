@@ -29,18 +29,18 @@ limitations under the License.
 #include "core/framework/model/npu_dp_ep_padding.h"
 #include "core/layers/attention_mask.h"
 #include "core/layers/deepseek_v2_decoder_layer.h"
-#include "core/layers/npu/llm_head.h"
-#include "core/layers/npu/pos_embedding.h"
-#include "core/layers/npu/word_embedding.h"
+#include "core/layers/lm_head.h"
+#include "core/layers/pos_embedding.h"
 #include "core/layers/rms_norm.h"
 #include "core/layers/rotary_embedding.h"
+#include "core/layers/word_embedding.h"
 #include "framework/context.h"
 #include "model_registry.h"
 // DeepSeek v2 compatible with huggingface weights
 // ref to:
 // https://github.com/vllm-project/vllm/blob/v0.6.6/vllm/model_executor/models/deepseek_v2.py
 
-namespace xllm::hf {
+namespace xllm {
 
 using torch::indexing::None;
 using ISlice = torch::indexing::Slice;
@@ -112,7 +112,7 @@ class DeepseekV2ModelImpl : public torch::nn::Module {
     device_ = options.device();
     dtype_ = options.dtype().toScalarType();
     num_speculative_tokens_ = model_args.num_speculative_tokens();
-    embed_tokens_ = register_module("embed_tokens", AtbWordEmbedding(context));
+    embed_tokens_ = register_module("embed_tokens", WordEmbedding(context));
 
     // rotary positional embedding
     auto inv_freq = rotary::apply_deepseek_yarn_rope_scaling(
@@ -245,9 +245,9 @@ class DeepseekV2ModelImpl : public torch::nn::Module {
     layers_[layer_id]->update_expert_weight();
   }
 
-  AtbWordEmbedding get_word_embedding() { return embed_tokens_; }
+  WordEmbedding get_word_embedding() { return embed_tokens_; }
 
-  void set_word_embedding(AtbWordEmbedding& word_embedding) {
+  void set_word_embedding(WordEmbedding& word_embedding) {
     embed_tokens_ = word_embedding;
   }
 
@@ -264,7 +264,7 @@ class DeepseekV2ModelImpl : public torch::nn::Module {
   int32_t num_speculative_tokens_ = 0;
   at::Device device_;
   torch::Dtype dtype_;
-  AtbWordEmbedding embed_tokens_{nullptr};
+  WordEmbedding embed_tokens_{nullptr};
   std::shared_ptr<RotaryEmbedding> pos_emb_{nullptr};
   AtbRotaryEmbedding atb_pos_emb_{nullptr};
   AttentionMask attn_mask_;
@@ -284,7 +284,7 @@ class DeepseekV2ForCausalLMImpl : public torch::nn::Module {
     void* stream = c10_npu::getCurrentNPUStream(device_id).stream();
     context_->SetExecuteStream(stream);
     context_->SetAsyncTilingCopyStatus(true);
-    lm_head_ = register_module("lm_head", LlmHead(context));
+    lm_head_ = register_module("lm_head", LmHead(context));
     first_k_dense_replace_ = context.get_model_args().first_k_dense_replace();
   }
 
@@ -331,19 +331,19 @@ class DeepseekV2ForCausalLMImpl : public torch::nn::Module {
     model_->update_expert_weight(layer_id + first_k_dense_replace_);
   }
 
-  LlmHead get_lm_head() { return lm_head_; }
+  LmHead get_lm_head() { return lm_head_; }
 
-  void set_lm_head(LlmHead& head) { lm_head_ = head; }
+  void set_lm_head(LmHead& head) { lm_head_ = head; }
 
-  AtbWordEmbedding get_word_embedding() { return model_->get_word_embedding(); }
+  WordEmbedding get_word_embedding() { return model_->get_word_embedding(); }
 
-  void set_word_embedding(AtbWordEmbedding& word_embedding) {
+  void set_word_embedding(WordEmbedding& word_embedding) {
     model_->set_word_embedding(word_embedding);
   }
 
  private:
   DeepseekV2Model model_{nullptr};
-  LlmHead lm_head_{nullptr};
+  LmHead lm_head_{nullptr};
   AtbWorkspace work_space_;
   atb::Context* context_;
   int32_t first_k_dense_replace_;
@@ -411,4 +411,4 @@ REGISTER_MODEL_ARGS(deepseek_v2, [&] {
 
   SET_ARG(stop_token_ids, std::unordered_set<int32_t>({100001}));
 });
-}  // namespace xllm::hf
+}  // namespace xllm

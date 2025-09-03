@@ -13,17 +13,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#include "llm_head.h"
+#pragma once
 
-#include "atb_head_impl.h"
+#if defined(USE_NPU)
+#include "npu/npu_word_embedding_impl.h"
+#include "pytorch/adapter/utils/utils.h"
+#endif
 
-namespace xllm::hf {
+namespace xllm {
 
-std::shared_ptr<LlmHeadImpl> create_llm_head_layer(const Context& context) {
-  return std::make_shared<AtbLmHeadImpl>(context);
-}
-
-LlmHead::LlmHead(const Context& context)
-    : ModuleHolder(create_llm_head_layer(context)) {}
-
-}  // namespace xllm::hf
+class WordEmbedding : public torch::nn::ModuleHolder<NpuWordEmbeddingImpl> {
+ public:
+  using torch::nn::ModuleHolder<NpuWordEmbeddingImpl>::ModuleHolder;
+  using Impl __attribute__((__unused__)) = NpuWordEmbeddingImpl;
+  WordEmbedding(const Context& context)
+      : ModuleHolder(std::make_shared<NpuWordEmbeddingImpl>(context)) {}
+};
+}  // namespace xllm

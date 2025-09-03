@@ -48,15 +48,13 @@ class LLMWorkerImpl : public WorkerImpl {
   std::optional<ForwardOutput> step(const ForwardInput& inputs) override;
 
 #if defined(USE_NPU)
-  hf::LlmHead get_lm_head() { return model_->get_lm_head(); };
+  LmHead get_lm_head() { return model_->get_lm_head(); };
 
-  void set_lm_head(hf::LlmHead& head) { model_->set_lm_head(head); };
+  void set_lm_head(LmHead& head) { model_->set_lm_head(head); };
 
-  hf::AtbWordEmbedding get_word_embedding() {
-    return model_->get_word_embedding();
-  };
+  WordEmbedding get_word_embedding() { return model_->get_word_embedding(); };
 
-  void set_word_embedding(hf::AtbWordEmbedding& embedding) {
+  void set_word_embedding(WordEmbedding& embedding) {
     model_->set_word_embedding(embedding);
   };
 #elif defined(USE_MLU)

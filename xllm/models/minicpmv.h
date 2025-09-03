@@ -34,7 +34,7 @@ limitations under the License.
 #include "qwen2.h"
 #include "xllm_kernels/core/include/atb_speed/log.h"
 
-namespace xllm::hf {
+namespace xllm {
 
 class MiniCPMInputProcessor : public InputProcessor {
  public:
@@ -1249,15 +1249,15 @@ class MiniCPMV2_6Impl : public torch::nn::Module {
     vpm_->verify_loaded_weights("vpm.");
   }
 
-  LlmHead get_lm_head() { return language_model_->get_lm_head(); }
+  LmHead get_lm_head() { return language_model_->get_lm_head(); }
 
-  void set_lm_head(LlmHead& head) { language_model_->set_lm_head(head); }
+  void set_lm_head(LmHead& head) { language_model_->set_lm_head(head); }
 
-  AtbWordEmbedding get_word_embedding() {
+  WordEmbedding get_word_embedding() {
     return language_model_->get_word_embedding();
   }
 
-  void set_word_embedding(AtbWordEmbedding& word_embedding) {
+  void set_word_embedding(WordEmbedding& word_embedding) {
     language_model_->set_word_embedding(word_embedding);
   }
 
@@ -1323,4 +1323,4 @@ REGISTER_MODEL_ARGS(minicpmv, [&] {
     return args->mm_hidden_size() / args->mm_num_attention_heads();
   });
 });
-}  // namespace xllm::hf
+}  // namespace xllm

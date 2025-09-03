@@ -22,7 +22,7 @@ limitations under the License.
 // QWen2 model compatible with huggingface weights
 // ref to:
 // https://github.com/huggingface/transformers/blob/v4.43.3/src/transformers/models/qwen2/modeling_qwen2.py
-namespace xllm::hf {
+namespace xllm {
 
 class QWen2DecoderLayerImpl
     : public QWenDecoderLayerImplBase<Qwen2DecoderLayer> {
@@ -51,7 +51,7 @@ class QWen2ModelImpl : public QWenModelImplBase<QWen2DecoderLayer> {
     blocks_ = register_module("layers", torch::nn::ModuleList());
     layers_.reserve(model_args.n_layers());
     work_space_ = AtbWorkspace(options.device());
-    embed_tokens_ = register_module("embed_tokens", AtbWordEmbedding(context));
+    embed_tokens_ = register_module("embed_tokens", WordEmbedding(context));
     norm_ = register_module("norm", RmsNorm(context));
 
     atb_pos_emb_ = AtbRotaryEmbedding(context);
@@ -124,4 +124,4 @@ REGISTER_MODEL_ARGS(qwen2, [&] {
   SET_ARG(stop_token_ids, std::unordered_set<int32_t>({args->eos_token_id()}));
 });
 
-}  // namespace xllm::hf
+}  // namespace xllm

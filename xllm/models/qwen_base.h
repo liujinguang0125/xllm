@@ -34,12 +34,12 @@ limitations under the License.
 #include "core/framework/context.h"
 #include "core/framework/kv_cache/kv_cache.h"
 #include "core/framework/model/model_input_params.h"
-#include "core/layers/npu/llm_head.h"
-#include "core/layers/npu/pos_embedding.h"
+#include "core/layers/lm_head.h"
+#include "core/layers/pos_embedding.h"
 #include "model_registry.h"
 #include "xllm_kernels/core/include/atb_speed/log.h"
 
-namespace xllm::hf {
+namespace xllm {
 
 std::tuple<torch::Tensor, torch::Tensor> get_qwen_rotary_embedding(
     int64_t dim,
@@ -299,9 +299,9 @@ class QWenModelImplBase : public torch::nn::Module {
     norm_->merge_loaded_weights();
   }
 
-  virtual AtbWordEmbedding get_word_embedding() { return embed_tokens_; }
+  virtual WordEmbedding get_word_embedding() { return embed_tokens_; }
 
-  virtual void set_word_embedding(AtbWordEmbedding& word_embedding) {
+  virtual void set_word_embedding(WordEmbedding& word_embedding) {
     embed_tokens_ = word_embedding;
   }
 
@@ -319,7 +319,7 @@ class QWenModelImplBase : public torch::nn::Module {
   std::vector<int64_t> mrope_section_;
   // test
   //  ParallelEmbedding embed_tokens_{nullptr};
-  AtbWordEmbedding embed_tokens_{nullptr};
+  WordEmbedding embed_tokens_{nullptr};
   RmsNorm norm_{nullptr};
 
   torch::nn::ModuleList blocks_{nullptr};
@@ -345,7 +345,7 @@ class QWenForCausalLMImplBase : public torch::nn::Module {
     void* stream = c10_npu::getCurrentNPUStream(device_id).stream();
     context_->SetExecuteStream(stream);
     context_->SetAsyncTilingCopyStatus(true);
-    lm_head_ = register_module("lm_head", LlmHead(context));
+    lm_head_ = register_module("lm_head", LmHead(context));
   }
 
   torch::Tensor get_input_embeddings(torch::Tensor input_ids) {
@@ -402,15 +402,15 @@ class QWenForCausalLMImplBase : public torch::nn::Module {
   }
   virtual void update_expert_weight(int32_t layer_id) { return; }
 
-  virtual LlmHead get_lm_head() { return lm_head_; }
+  virtual LmHead get_lm_head() { return lm_head_; }
 
-  virtual void set_lm_head(LlmHead& head) { lm_head_ = head; }
+  virtual void set_lm_head(LmHead& head) { lm_head_ = head; }
 
-  virtual AtbWordEmbedding get_word_embedding() {
+  virtual WordEmbedding get_word_embedding() {
     return model_->get_word_embedding();
   }
 
-  virtual void set_word_embedding(AtbWordEmbedding& word_embedding) {
+  virtual void set_word_embedding(WordEmbedding& word_embedding) {
     model_->set_word_embedding(word_embedding);
   }
 
@@ -420,9 +420,9 @@ class QWenForCausalLMImplBase : public torch::nn::Module {
   int device_id = 0;
   bool tie_word_embeddings{false};
   // test
-  LlmHead lm_head_{nullptr};
+  LmHead lm_head_{nullptr};
   AtbWorkspace work_space_;
   atb::Context* context_;
 };
 
-}  // namespace xllm::hf
+}  // namespace xllm

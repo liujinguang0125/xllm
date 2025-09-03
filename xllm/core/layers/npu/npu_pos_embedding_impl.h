@@ -28,12 +28,12 @@ limitations under the License.
 #include <functional>
 
 #include "atb/atb_infer.h"
-#include "atb_base.h"
 #include "framework/context.h"
 #include "framework/model/model_args.h"
 #include "framework/model/model_input_params.h"
 #include "framework/state_dict/state_dict.h"
 #include "nlohmann/json.hpp"
+#include "npu_base_layer.h"
 #include "pytorch/adapter/utils/utils.h"
 #include "xllm_kernels/core/include/atb_speed/base/hosttensor_binder.h"
 #include "xllm_kernels/core/include/atb_speed/base/model.h"
@@ -41,17 +41,17 @@ limitations under the License.
 #include "xllm_kernels/core/include/atb_speed/utils/model_factory.h"
 #include "xllm_kernels/operations/fusion/embedding/positional_embedding.h"
 
-namespace xllm::hf {
+namespace xllm {
 
-class AtbRotaryEmbeddingImpl : public torch::nn::Module, public ATBBase {
+class NpuRotaryEmbeddingImpl : public NpuBaseLayer {
  public:
   using Task = std::function<int()>;
   using RunTaskFunc =
       std::function<void(const std::string& taskName, Task task)>;
 
-  explicit AtbRotaryEmbeddingImpl(const Context& context);
+  explicit NpuRotaryEmbeddingImpl(const Context& context);
 
-  ~AtbRotaryEmbeddingImpl() {};
+  ~NpuRotaryEmbeddingImpl() {};
 
   int64_t init_layer();
 
@@ -75,16 +75,4 @@ class AtbRotaryEmbeddingImpl : public torch::nn::Module, public ATBBase {
   atb::Tensor internal_position;
 };
 
-class AtbRotaryEmbedding
-    : public torch::nn::ModuleHolder<AtbRotaryEmbeddingImpl> {
- public:
-  using torch::nn::ModuleHolder<AtbRotaryEmbeddingImpl>::ModuleHolder;
-  using Impl __attribute__((__unused__)) = AtbRotaryEmbeddingImpl;
-
-  AtbRotaryEmbedding(const Context& context);
-};
-
-std::shared_ptr<AtbRotaryEmbeddingImpl> create_pos_embedding_layer(
-    const Context& context);
-
-}  // namespace xllm::hf
+}  // namespace xllm

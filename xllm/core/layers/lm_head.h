@@ -15,9 +15,20 @@ limitations under the License.
 
 #pragma once
 
-#include "llama.h"
+#if defined(USE_NPU)
+#include "npu/npu_lm_head_impl.h"
+#include "pytorch/adapter/utils/utils.h"
+#endif
 
 namespace xllm {
-// register the causal model
-REGISTER_CAUSAL_MODEL(llama3, LlamaForCausalLM);
+
+class LmHead : public torch::nn::ModuleHolder<NpuLmHeadImpl> {
+ public:
+  using torch::nn::ModuleHolder<NpuLmHeadImpl>::ModuleHolder;
+  using Impl __attribute__((__unused__)) = NpuLmHeadImpl;
+
+  LmHead(const Context& context)
+      : ModuleHolder(std::make_shared<NpuLmHeadImpl>(context)) {}
+};
+
 }  // namespace xllm

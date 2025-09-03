@@ -13,18 +13,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#include "word_embedding.h"
+#pragma once
 
-#include "atb_word_embedding_impl.h"
+#if defined(USE_NPU)
+#include "npu/npu_pos_embedding_impl.h"
+#include "pytorch/adapter/utils/utils.h"
+#endif
 
-namespace xllm::hf {
+namespace xllm {
 
-std::shared_ptr<AtbEmbeddingImpl> create_word_embedding_layer(
-    const Context& context) {
-  return std::make_shared<AtbWordEmbeddingImpl>(context);
-}
+class PosEmbedding : public torch::nn::ModuleHolder<NpuRotaryEmbeddingImpl> {
+ public:
+  using torch::nn::ModuleHolder<NpuRotaryEmbeddingImpl>::ModuleHolder;
+  using Impl __attribute__((__unused__)) = NpuRotaryEmbeddingImpl;
 
-AtbWordEmbedding::AtbWordEmbedding(const Context& context)
-    : ModuleHolder(create_word_embedding_layer(context)) {}
+  PosEmbedding(const Context& context)
+      : ModuleHolder(std::make_shared<NpuRotaryEmbeddingImpl>(context)) {}
+};
 
-}  // namespace xllm::hf
+}  // namespace xllm

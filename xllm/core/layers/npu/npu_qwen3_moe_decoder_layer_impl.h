@@ -21,7 +21,6 @@ limitations under the License.
 
 #include <nlohmann/json.hpp>
 
-#include "atb_base.h"
 #include "framework/model/model_args.h"
 #include "framework/model/model_input_params.h"
 #include "framework/model/npu_dp_ep_padding.h"

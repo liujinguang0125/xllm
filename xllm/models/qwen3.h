@@ -18,7 +18,7 @@ limitations under the License.
 #include "core/layers/qwen3_decoder_layer.h"
 #include "qwen_base.h"
 
-namespace xllm::hf {
+namespace xllm {
 
 class QWen3DecoderLayerImpl
     : public QWenDecoderLayerImplBase<Qwen3DecoderLayer> {
@@ -47,7 +47,7 @@ class QWen3ModelImpl : public QWenModelImplBase<QWen3DecoderLayer> {
     blocks_ = register_module("layers", torch::nn::ModuleList());
     layers_.reserve(model_args.n_layers());
     work_space_ = AtbWorkspace(options.device());
-    embed_tokens_ = register_module("embed_tokens", AtbWordEmbedding(context));
+    embed_tokens_ = register_module("embed_tokens", WordEmbedding(context));
     norm_ = register_module("norm", RmsNorm(context));
 
     atb_pos_emb_ = AtbRotaryEmbedding(context);
@@ -121,4 +121,4 @@ REGISTER_MODEL_ARGS(qwen3, [&] {
   SET_ARG(stop_token_ids, std::unordered_set<int32_t>({args->eos_token_id()}));
 });
 
-}  // namespace xllm::hf
+}  // namespace xllm
