@@ -41,6 +41,7 @@ limitations under the License.
 #include "xllm_kernels/models/qwen2_5/vision_encoder/encoder_layer.h"
 
 namespace xllm {
+namespace layer {
 
 enum VisionEncoderLayerTensorId : int {
   IN_INPUT_NORM_WEIGHT = 0,
@@ -143,19 +144,5 @@ class NpuQwen2dot5VisionEncoderLayerImpl : public NpuBaseLayer {
   int device_id_;
 };
 
-// class Qwen2_5VisionEncoder
-//     : public torch::nn::ModuleHolder<NpuQwen2dot5VisionEncoderLayerImpl> {
-//  public:
-//   using
-//   torch::nn::ModuleHolder<NpuQwen2dot5VisionEncoderLayerImpl>::ModuleHolder;
-//   using Impl __attribute__((__unused__)) =
-//   NpuQwen2dot5VisionEncoderLayerImpl;
-
-//   Qwen2_5VisionEncoder(const Context& context);
-// };
-
-// std::shared_ptr<NpuQwen2dot5VisionEncoderLayerImpl>
-// create_qwen2_5_vision_encoder_layer(
-//     const Context& context);
-
+}  // namespace layer
 }  // namespace xllm

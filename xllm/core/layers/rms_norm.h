@@ -25,7 +25,6 @@ limitations under the License.
 #include <torch_npu/csrc/libs/init_npu.h>
 
 #include "npu/npu_rms_norm_impl.h"
-#include "pytorch/adapter/utils/utils.h"
 #endif
 
 #include <functional>
@@ -42,7 +41,9 @@ limitations under the License.
 #include "nlohmann/json.hpp"
 
 namespace xllm {
+namespace layer {
 
+#if defined(USE_NPU)
 class RmsNorm : public torch::nn::ModuleHolder<NpuRmsNormImpl> {
  public:
   using torch::nn::ModuleHolder<NpuRmsNormImpl>::ModuleHolder;
@@ -51,5 +52,7 @@ class RmsNorm : public torch::nn::ModuleHolder<NpuRmsNormImpl> {
   RmsNorm(const Context& context)
       : ModuleHolder(std::make_shared<NpuRmsNormImpl>(context)) {}
 };
+#endif
 
+}  // namespace layer
 }  // namespace xllm

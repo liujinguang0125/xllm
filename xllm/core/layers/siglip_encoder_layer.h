@@ -17,11 +17,12 @@ limitations under the License.
 
 #if defined(USE_NPU)
 #include "npu/npu_siglip_encoder_layer_impl.h"
-#include "pytorch/adapter/utils/utils.h"
 #endif
 
 namespace xllm {
+namespace layer {
 
+#if defined(USE_NPU)
 class SiglipEncoderLayer
     : public torch::nn::ModuleHolder<NpuSiglipEncoderLayerImpl> {
  public:
@@ -32,5 +33,7 @@ class SiglipEncoderLayer
       : ModuleHolder(
             std::make_shared<NpuSiglipEncoderLayerImpl>(context, prefix)) {}
 };
+#endif
+}  // namespace layer
 
 }  // namespace xllm

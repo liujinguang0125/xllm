@@ -16,6 +16,7 @@ limitations under the License.
 #include "attention_mask.h"
 
 namespace xllm {
+namespace layer {
 
 AttentionMask::AttentionMask(at::Device device,
                              torch::Dtype dtype,
@@ -83,4 +84,5 @@ void AttentionMask::update_attn_cache(torch::Dtype dtype,
   }
 }
 
+}  // namespace layer
 }  // namespace xllm

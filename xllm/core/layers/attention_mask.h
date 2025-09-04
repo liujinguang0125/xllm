@@ -17,6 +17,7 @@ limitations under the License.
 #include <torch/torch.h>
 
 namespace xllm {
+namespace layer {
 
 class AttentionMask : public torch::nn::Module {
  public:
@@ -49,4 +50,5 @@ class AttentionMask : public torch::nn::Module {
   at::Tensor atten_mask_cache_;
 };
 
+}  // namespace layer
 }  // namespace xllm

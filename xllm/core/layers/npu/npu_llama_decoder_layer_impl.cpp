@@ -26,6 +26,7 @@ limitations under the License.
 #include "torch_npu/csrc/core/npu/NPUException.h"
 
 namespace xllm {
+namespace layer {
 
 const uint64_t WEIGHT_COUNT_PER_LAYER = 50;
 
@@ -357,4 +358,5 @@ void NpuLlamaDecoderLayerImpl::build_node_variant_pack(
   node.variantPack.outTensors.at(0) = internal_tensors_;
 }
 
+}  // namespace layer
 }  // namespace xllm

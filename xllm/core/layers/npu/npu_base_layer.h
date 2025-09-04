@@ -51,6 +51,7 @@ limitations under the License.
 #endif
 
 namespace xllm {
+namespace layer {
 
 class NpuBaseLayer : public BaseLayer {
  public:
@@ -80,4 +81,5 @@ class NpuBaseLayer : public BaseLayer {
   std::vector<atb::Tensor> atb_weight_tensors_;
 };
 
+}  // namespace layer
 }  // namespace xllm

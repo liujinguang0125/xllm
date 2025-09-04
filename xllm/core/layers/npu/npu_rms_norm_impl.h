@@ -40,6 +40,7 @@ limitations under the License.
 #include "xllm_kernels/core/include/atb_speed/utils/model_factory.h"
 
 namespace xllm {
+namespace layer {
 
 class NpuRmsNormImpl : public NpuBaseLayer {
  public:
@@ -74,4 +75,5 @@ class NpuRmsNormImpl : public NpuBaseLayer {
   atb::Tensor internal_tensors_;
 };
 
+}  // namespace layer
 }  // namespace xllm

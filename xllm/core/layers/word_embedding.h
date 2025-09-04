@@ -17,11 +17,12 @@ limitations under the License.
 
 #if defined(USE_NPU)
 #include "npu/npu_word_embedding_impl.h"
-#include "pytorch/adapter/utils/utils.h"
 #endif
 
 namespace xllm {
+namespace layer {
 
+#if defined(USE_NPU)
 class WordEmbedding : public torch::nn::ModuleHolder<NpuWordEmbeddingImpl> {
  public:
   using torch::nn::ModuleHolder<NpuWordEmbeddingImpl>::ModuleHolder;
@@ -29,4 +30,7 @@ class WordEmbedding : public torch::nn::ModuleHolder<NpuWordEmbeddingImpl> {
   WordEmbedding(const Context& context)
       : ModuleHolder(std::make_shared<NpuWordEmbeddingImpl>(context)) {}
 };
+#endif
+
+}  // namespace layer
 }  // namespace xllm

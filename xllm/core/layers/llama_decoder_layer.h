@@ -17,11 +17,12 @@ limitations under the License.
 
 #if defined(USE_NPU)
 #include "npu/npu_llama_decoder_layer_impl.h"
-#include "pytorch/adapter/utils/utils.h"
 #endif
 
 namespace xllm {
+namespace layer {
 
+#if defined(USE_NPU)
 class LlamaDecoderLayer
     : public torch::nn::ModuleHolder<NpuLlamaDecoderLayerImpl> {
  public:
@@ -31,5 +32,7 @@ class LlamaDecoderLayer
   LlamaDecoderLayer(const Context& context)
       : ModuleHolder(std::make_shared<NpuLlamaDecoderLayerImpl>(context)) {}
 };
+#endif
 
+}  // namespace layer
 }  // namespace xllm

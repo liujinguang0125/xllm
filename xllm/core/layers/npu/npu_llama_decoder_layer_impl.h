@@ -41,6 +41,7 @@ limitations under the License.
 #include "xllm_kernels/models/llama/layer/decoder_layer.h"
 
 namespace xllm {
+namespace layer {
 
 class NpuLlamaDecoderLayerImpl : public NpuBaseLayer {
  public:
@@ -102,4 +103,5 @@ class NpuLlamaDecoderLayerImpl : public NpuBaseLayer {
   int device_id_;
 };
 
+}  // namespace layer
 }  // namespace xllm

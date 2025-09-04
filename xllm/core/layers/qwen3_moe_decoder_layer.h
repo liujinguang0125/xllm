@@ -17,11 +17,12 @@ limitations under the License.
 
 #if defined(USE_NPU)
 #include "npu/npu_qwen3_moe_decoder_layer_impl.h"
-#include "pytorch/adapter/utils/utils.h"
 #endif
 
 namespace xllm {
+namespace layer {
 
+#if defined(USE_NPU)
 class Qwen3MoeDecoderLayer
     : public torch::nn::ModuleHolder<NpuQwen3MoeDecoderLayerImpl> {
  public:
@@ -32,5 +33,7 @@ class Qwen3MoeDecoderLayer
       : Qwen3MoeDecoderLayer(
             std::make_shared<NpuQwen3MoeDecoderLayerImpl>(context, layer_id)) {}
 };
+#endif
 
+}  // namespace layer
 }  // namespace xllm

@@ -41,6 +41,7 @@ limitations under the License.
 #include "xllm_kernels/operations/fusion/linear/linear_parallel.h"
 
 namespace xllm {
+namespace layer {
 // Linear layer with column parallelism.
 // The linear layer is defined as Y = XA + b. A is parallelized along
 // its second dimension as A = [A_1, ..., A_p].
@@ -85,15 +86,5 @@ class NpuColumnParallelLinearImpl : public NpuBaseLayer {
   atb_speed::common::LinearParallelParam linear_param_;
 };
 
-// class AtbColumnParallelLinear
-//     : public torch::nn::ModuleHolder<NpuColumnParallelLinearImpl> {
-//  public:
-//   using torch::nn::ModuleHolder<NpuColumnParallelLinearImpl>::ModuleHolder;
-//   using Impl __attribute__((__unused__)) = NpuColumnParallelLinearImpl;
-
-//   AtbColumnParallelLinear(const Context& context);
-// };
-
-// std::shared_ptr<NpuColumnParallelLinearImpl>
-// create_atb_column_parallel_linear_layer(const Context& context);
+}  // namespace layer
 }  // namespace xllm

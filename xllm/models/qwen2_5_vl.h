@@ -148,8 +148,8 @@ class Qwen2_5_VisionBlockImpl : public torch::nn::Module {
  public:
   Qwen2_5_VisionBlockImpl(const Context& context) {
     // register submodules
-    encoder_layer_ =
-        register_module("encoder_layer", Qwen2dot5VisionEncoderLayer(context));
+    encoder_layer_ = register_module(
+        "encoder_layer", layer::Qwen2dot5VisionEncoderLayer(context));
   }
 
   torch::Tensor forward(torch::Tensor& x,
@@ -184,7 +184,7 @@ class Qwen2_5_VisionBlockImpl : public torch::nn::Module {
   void merge_loaded_weights() { encoder_layer_->merge_loaded_weights(); }
 
  private:
-  Qwen2dot5VisionEncoderLayer encoder_layer_{nullptr};
+  layer::Qwen2dot5VisionEncoderLayer encoder_layer_{nullptr};
 };
 TORCH_MODULE(Qwen2_5_VisionBlock);
 
@@ -291,7 +291,7 @@ class Qwen2_5_VisionPatchMergerImpl : public torch::nn::Module {
 
     hidden_size_ =
         context_dim * static_cast<int>(std::pow(spatial_merge_size, 2));
-    ln_q_ = register_module("ln_q", RmsNorm(context));
+    ln_q_ = register_module("ln_q", layer::RmsNorm(context));
 
     auto cpl = torch::nn::Linear(
         torch::nn::LinearOptions(hidden_size_, hidden_size_).bias(true));
@@ -367,7 +367,7 @@ class Qwen2_5_VisionPatchMergerImpl : public torch::nn::Module {
  private:
   int64_t hidden_size_;
 
-  RmsNorm ln_q_{nullptr};
+  layer::RmsNorm ln_q_{nullptr};
   torch::nn::Sequential mlp_{nullptr};
   std::tuple<torch::nn::Linear, torch::nn::GELU, torch::nn::Linear> layers_ = {
       nullptr,
@@ -774,11 +774,11 @@ class Qwen2_5_VLForConditionalGenerationImpl : public torch::nn::Module {
   LmHead get_lm_head() { return language_model_->get_lm_head(); }
   void set_lm_head(LmHead& head) { language_model_->set_lm_head(head); }
 
-  WordEmbedding get_word_embedding() {
+  layer::WordEmbedding get_word_embedding() {
     return language_model_->get_word_embedding();
   }
 
-  void set_word_embedding(WordEmbedding& word_embedding) {
+  void set_word_embedding(layer::WordEmbedding& word_embedding) {
     language_model_->set_word_embedding(word_embedding);
   }
 

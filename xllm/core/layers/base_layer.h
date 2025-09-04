@@ -33,6 +33,7 @@ limitations under the License.
 #include "framework/state_dict/state_dict.h"
 
 namespace xllm {
+namespace layer {
 
 enum class TransposeType : int {
   INVALID = -1,
@@ -139,4 +140,5 @@ class BaseLayer : public torch::nn::Module {
   int32_t dp_local_tp_rank_;
 };
 
+}  // namespace layer
 }  // namespace xllm

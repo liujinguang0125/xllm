@@ -17,11 +17,12 @@ limitations under the License.
 
 #if defined(USE_NPU)
 #include "npu/npu_deepseek_v2_decoder_layer_impl.h"
-#include "pytorch/adapter/utils/utils.h"
 #endif
 
 namespace xllm {
+namespace layer {
 
+#if defined(USE_NPU)
 class DeepseekV2DecoderLayer
     : public torch::nn::ModuleHolder<NpuDeepseekV2DecoderLayerImpl> {
  public:
@@ -36,5 +37,7 @@ class DeepseekV2DecoderLayer
                                                             layer_id,
                                                             sm_scale)) {}
 };
+#endif
 
+}  // namespace layer
 }  // namespace xllm

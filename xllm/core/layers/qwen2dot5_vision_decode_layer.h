@@ -17,11 +17,12 @@ limitations under the License.
 
 #if defined(USE_NPU)
 #include "npu/npu_qwen2dot5_vision_encoder_layer_impl.h"
-#include "pytorch/adapter/utils/utils.h"
 #endif
 
 namespace xllm {
+namespace layer {
 
+#if defined(USE_NPU)
 class Qwen2dot5VisionEncoderLayer
     : public torch::nn::ModuleHolder<NpuQwen2dot5VisionEncoderLayerImpl> {
  public:
@@ -33,5 +34,7 @@ class Qwen2dot5VisionEncoderLayer
       : ModuleHolder(
             std::make_shared<NpuQwen2dot5VisionEncoderLayerImpl>(context)) {}
 };
+#endif
 
+}  // namespace layer
 }  // namespace xllm

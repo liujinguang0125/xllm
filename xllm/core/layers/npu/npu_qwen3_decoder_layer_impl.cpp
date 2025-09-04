@@ -30,6 +30,7 @@ DECLARE_bool(enable_prefix_cache);
 DECLARE_int32(block_size);
 
 namespace xllm {
+namespace layer {
 
 enum DecoderLayerTensorId : int {
   IN_NORM_WEIGHT = 0,      // weight
@@ -570,4 +571,5 @@ void NpuQwen3DecoderLayerImpl::build_node_variant_pack(
   node.variantPack.outTensors.at(0) = internal_tensors_;
 }
 
+}  // namespace layer
 }  // namespace xllm

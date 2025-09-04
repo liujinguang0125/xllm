@@ -16,6 +16,7 @@ limitations under the License.
 #include "base_layer.h"
 
 namespace xllm {
+namespace layer {
 
 BaseLayer::BaseLayer(const Context& context)
     : device_(context.get_tensor_options().device()),
@@ -142,4 +143,5 @@ void BaseLayer::set_weight(const StateDict& state_dict,
   }
 }
 
+}  // namespace layer
 }  // namespace xllm

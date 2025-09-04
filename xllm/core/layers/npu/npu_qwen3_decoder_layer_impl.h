@@ -41,6 +41,7 @@ limitations under the License.
 #include "xllm_kernels/models/qwen3/layer/decoder_layer.h"
 
 namespace xllm {
+namespace layer {
 
 class NpuQwen3DecoderLayerImpl : public NpuBaseLayer {
  public:
@@ -111,4 +112,5 @@ class NpuQwen3DecoderLayerImpl : public NpuBaseLayer {
   std::vector<std::shared_ptr<std::vector<int>>> decode_vector_storage_;
 };
 
+}  // namespace layer
 }  // namespace xllm

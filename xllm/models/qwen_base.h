@@ -299,9 +299,9 @@ class QWenModelImplBase : public torch::nn::Module {
     norm_->merge_loaded_weights();
   }
 
-  virtual WordEmbedding get_word_embedding() { return embed_tokens_; }
+  virtual layer::WordEmbedding get_word_embedding() { return embed_tokens_; }
 
-  virtual void set_word_embedding(WordEmbedding& word_embedding) {
+  virtual void set_word_embedding(layer::WordEmbedding& word_embedding) {
     embed_tokens_ = word_embedding;
   }
 
@@ -313,14 +313,14 @@ class QWenModelImplBase : public torch::nn::Module {
   int max_seq_len_ = 0;
   int device_id = 0;
   AtbWorkspace work_space_;
-  AttentionMask attn_mask_;
-  AtbRotaryEmbedding atb_pos_emb_{nullptr};
+  layer::AttentionMask attn_mask_;
+  layer::PosEmbedding atb_pos_emb_{nullptr};
 
   std::vector<int64_t> mrope_section_;
   // test
   //  ParallelEmbedding embed_tokens_{nullptr};
-  WordEmbedding embed_tokens_{nullptr};
-  RmsNorm norm_{nullptr};
+  layer::WordEmbedding embed_tokens_{nullptr};
+  layer::RmsNorm norm_{nullptr};
 
   torch::nn::ModuleList blocks_{nullptr};
   // hold same data but different type as blocks_ to avoid type cast
@@ -406,11 +406,11 @@ class QWenForCausalLMImplBase : public torch::nn::Module {
 
   virtual void set_lm_head(LmHead& head) { lm_head_ = head; }
 
-  virtual WordEmbedding get_word_embedding() {
+  virtual layer::WordEmbedding get_word_embedding() {
     return model_->get_word_embedding();
   }
 
-  virtual void set_word_embedding(WordEmbedding& word_embedding) {
+  virtual void set_word_embedding(layer::WordEmbedding& word_embedding) {
     model_->set_word_embedding(word_embedding);
   }
 

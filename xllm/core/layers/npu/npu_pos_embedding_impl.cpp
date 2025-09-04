@@ -18,6 +18,7 @@ limitations under the License.
 #include <glog/logging.h>
 
 namespace xllm {
+namespace layer {
 
 NpuRotaryEmbeddingImpl::NpuRotaryEmbeddingImpl(const Context& context)
     : NpuBaseLayer(context) {
@@ -111,4 +112,5 @@ void NpuRotaryEmbeddingImpl::build_node_variant_pack(
       atb_speed::Utils::AtTensor2Tensor(atOutTensors_.at(0));
 }
 
+}  // namespace layer
 }  // namespace xllm

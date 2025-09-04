@@ -25,6 +25,7 @@ limitations under the License.
 #include "torch_npu/csrc/core/npu/NPUException.h"
 
 namespace xllm {
+namespace layer {
 
 const uint64_t WEIGHT_COUNT_PER_LAYER = 18;
 
@@ -402,7 +403,5 @@ void NpuQwen2dot5VisionEncoderLayerImpl::build_node_variant_pack(
   node.variantPack.outTensors.at(0) = internal_tensors_;
 }
 
-// Qwen2_5VisionEncoder::Qwen2_5VisionEncoder(const Context& context)
-//     : ModuleHolder(create_qwen2_5_vision_encoder_layer(context)) {}
-
+}  // namespace layer
 }  // namespace xllm

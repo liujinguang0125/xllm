@@ -35,6 +35,7 @@ limitations under the License.
 #include "xllm_kernels/models/qwen3/layer/moe_decoder_layer.h"
 
 namespace xllm {
+namespace layer {
 
 class NpuQwen3MoeDecoderLayerImpl : public NpuBaseLayer {
  public:
@@ -234,4 +235,5 @@ std::vector<torch::Tensor> get_dtp_inputs(torch::Tensor token_size_per_dp_group,
                                           int32_t rank,
                                           at::Device device);
 
+}  // namespace layer
 }  // namespace xllm

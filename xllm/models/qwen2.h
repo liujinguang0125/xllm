@@ -25,10 +25,10 @@ limitations under the License.
 namespace xllm {
 
 class QWen2DecoderLayerImpl
-    : public QWenDecoderLayerImplBase<Qwen2DecoderLayer> {
+    : public QWenDecoderLayerImplBase<layer::Qwen2DecoderLayer> {
  public:
   QWen2DecoderLayerImpl(const Context& context)
-      : QWenDecoderLayerImplBase<Qwen2DecoderLayer>(context) {}
+      : QWenDecoderLayerImplBase<layer::Qwen2DecoderLayer>(context) {}
 };
 TORCH_MODULE(QWen2DecoderLayer);
 
@@ -51,19 +51,20 @@ class QWen2ModelImpl : public QWenModelImplBase<QWen2DecoderLayer> {
     blocks_ = register_module("layers", torch::nn::ModuleList());
     layers_.reserve(model_args.n_layers());
     work_space_ = AtbWorkspace(options.device());
-    embed_tokens_ = register_module("embed_tokens", WordEmbedding(context));
-    norm_ = register_module("norm", RmsNorm(context));
+    embed_tokens_ =
+        register_module("embed_tokens", layer::WordEmbedding(context));
+    norm_ = register_module("norm", layer::RmsNorm(context));
 
-    atb_pos_emb_ = AtbRotaryEmbedding(context);
+    atb_pos_emb_ = layer::PosEmbedding(context);
     cos_sin_ = get_qwen2_rotary_embedding(
         model_args.hidden_size() / model_args.n_heads(),
         model_args.max_position_embeddings(),
         model_args.rope_theta(),
         options);
     int32_t mask_value = FLAGS_enable_chunked_prefill ? -9984 : 1;
-    attn_mask_ = AttentionMask(options.device(),
-                               options.dtype().toScalarType(),
-                               /*mask_value=*/mask_value);
+    attn_mask_ = layer::AttentionMask(options.device(),
+                                      options.dtype().toScalarType(),
+                                      /*mask_value=*/mask_value);
     atb::Status st = atb::CreateContext(&context_);
     LOG_IF(ERROR, st != 0) << "ContextFactory create atb::Context fail";
     device_id = options.device().index();

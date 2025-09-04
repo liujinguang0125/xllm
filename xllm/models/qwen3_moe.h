@@ -31,8 +31,8 @@ class Qwen3MoeDecoderLayerImpl : public torch::nn::Module {
  public:
   Qwen3MoeDecoderLayerImpl(const Context& context, const int32_t i) {
     // register submodules
-    decoder_layer_ =
-        register_module("decoder_layer", Qwen3MoeDecoderLayer(context, i));
+    decoder_layer_ = register_module("decoder_layer",
+                                     layer::Qwen3MoeDecoderLayer(context, i));
   }
 
   torch::Tensor forward(torch::Tensor x,
@@ -70,7 +70,7 @@ class Qwen3MoeDecoderLayerImpl : public torch::nn::Module {
   void merge_loaded_weights() { decoder_layer_->merge_loaded_weights(); }
 
  private:
-  Qwen3MoeDecoderLayer decoder_layer_{nullptr};
+  layer::Qwen3MoeDecoderLayer decoder_layer_{nullptr};
 };
 TORCH_MODULE(Qwen3MoeDecoderLayer);
 
@@ -96,9 +96,10 @@ class Qwen3MoeModelImpl : public torch::nn::Module {
     device_ = options.device();
     dtype_ = options.dtype().toScalarType();
     num_speculative_tokens_ = model_args.num_speculative_tokens();
-    embed_tokens_ = register_module("embed_tokens", WordEmbedding(context));
+    embed_tokens_ =
+        register_module("embed_tokens", layer::WordEmbedding(context));
 
-    atb_pos_emb_ = AtbRotaryEmbedding(context);
+    atb_pos_emb_ = layer::PosEmbedding(context);
     cos_sin_ =
         get_qwen3_moe_rotary_embedding(128,
                                        model_args.max_position_embeddings(),
@@ -107,9 +108,9 @@ class Qwen3MoeModelImpl : public torch::nn::Module {
 
     max_seq_len_ = model_args.max_position_embeddings();
     int32_t mask_value = model_args.dtype() == "bfloat16" ? 1 : -9984;
-    attn_mask_ = AttentionMask(options.device(),
-                               options.dtype().toScalarType(),
-                               /*mask_value=*/mask_value);
+    attn_mask_ = layer::AttentionMask(options.device(),
+                                      options.dtype().toScalarType(),
+                                      /*mask_value=*/mask_value);
 
     for (int32_t i = 0; i < model_args.n_layers(); ++i) {
       auto block = Qwen3MoeDecoderLayer(context, i);
@@ -117,7 +118,7 @@ class Qwen3MoeModelImpl : public torch::nn::Module {
       blocks_->push_back(block);
     }
 
-    norm_ = register_module("norm", RmsNorm(context));
+    norm_ = register_module("norm", layer::RmsNorm(context));
     dp_size_ = parallel_args.dp_size();
     std::vector<int64_t> indices;
     dp_local_tp_size_ = parallel_args.world_size() / dp_size_;
@@ -217,9 +218,9 @@ class Qwen3MoeModelImpl : public torch::nn::Module {
     norm_->merge_loaded_weights();
   }
 
-  WordEmbedding get_word_embedding() { return embed_tokens_; }
+  layer::WordEmbedding get_word_embedding() { return embed_tokens_; }
 
-  void set_word_embedding(WordEmbedding& word_embedding) {
+  void set_word_embedding(layer::WordEmbedding& word_embedding) {
     embed_tokens_ = word_embedding;
   }
 
@@ -236,11 +237,11 @@ class Qwen3MoeModelImpl : public torch::nn::Module {
   int32_t num_speculative_tokens_ = 0;
   at::Device device_;
   torch::Dtype dtype_;
-  WordEmbedding embed_tokens_{nullptr};
-  AttentionMask attn_mask_;
-  RmsNorm norm_{nullptr};
+  layer::WordEmbedding embed_tokens_{nullptr};
+  layer::AttentionMask attn_mask_;
+  layer::RmsNorm norm_{nullptr};
   torch::Tensor cos_sin_;
-  AtbRotaryEmbedding atb_pos_emb_{nullptr};
+  layer::PosEmbedding atb_pos_emb_{nullptr};
 };
 TORCH_MODULE(Qwen3MoeModel);
 
@@ -304,9 +305,11 @@ class Qwen3MoeForCausalLMImpl : public torch::nn::Module {
 
   void set_lm_head(LmHead& head) { lm_head_ = head; }
 
-  WordEmbedding get_word_embedding() { return model_->get_word_embedding(); }
+  layer::WordEmbedding get_word_embedding() {
+    return model_->get_word_embedding();
+  }
 
-  void set_word_embedding(WordEmbedding& word_embedding) {
+  void set_word_embedding(layer::WordEmbedding& word_embedding) {
     model_->set_word_embedding(word_embedding);
   }
 

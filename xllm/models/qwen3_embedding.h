@@ -79,10 +79,10 @@ class EmbeddingLMImpl<xllm::QWen3ForEmbedding> : public EmbeddingLM {
   // Delegate head/embedding accessors to underlying model implementation.
   LmHead get_lm_head() override { return model_->get_lm_head(); }
   void set_lm_head(LmHead& head) override { model_->set_lm_head(head); }
-  WordEmbedding get_word_embedding() override {
+  layer::WordEmbedding get_word_embedding() override {
     return model_->get_word_embedding();
   }
-  void set_word_embedding(WordEmbedding& embedding) override {
+  void set_word_embedding(layer::WordEmbedding& embedding) override {
     model_->set_word_embedding(embedding);
   }
 

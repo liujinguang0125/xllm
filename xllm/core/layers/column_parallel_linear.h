@@ -17,11 +17,12 @@ limitations under the License.
 
 #if defined(USE_NPU)
 #include "npu/npu_column_parallel_linear_impl.h"
-#include "pytorch/adapter/utils/utils.h"
 #endif
 
 namespace xllm {
+namespace layer {
 
+#if defined(USE_NPU)
 class ColumnParallelLinear
     : public torch::nn::ModuleHolder<NpuColumnParallelLinearImpl> {
  public:
@@ -31,5 +32,7 @@ class ColumnParallelLinear
   ColumnParallelLinear(const Context& context)
       : ModuleHolder(std::make_shared<NpuColumnParallelLinearImpl>(context)) {}
 };
+#endif
 
+}  // namespace layer
 }  // namespace xllm

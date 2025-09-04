@@ -39,6 +39,7 @@ limitations under the License.
 #include "xllm_kernels/operations/fusion/lmhead/lmhead.h"
 
 namespace xllm {
+namespace layer {
 
 class NpuLmHeadImpl : public NpuBaseLayer {
  public:
@@ -97,4 +98,5 @@ class NpuLmHeadImpl : public NpuBaseLayer {
   atb::Tensor seleted_idxes_atb_;
 };
 
+}  // namespace layer
 }  // namespace xllm

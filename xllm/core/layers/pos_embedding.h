@@ -17,11 +17,12 @@ limitations under the License.
 
 #if defined(USE_NPU)
 #include "npu/npu_pos_embedding_impl.h"
-#include "pytorch/adapter/utils/utils.h"
 #endif
 
 namespace xllm {
+namespace layer {
 
+#if defined(USE_NPU)
 class PosEmbedding : public torch::nn::ModuleHolder<NpuRotaryEmbeddingImpl> {
  public:
   using torch::nn::ModuleHolder<NpuRotaryEmbeddingImpl>::ModuleHolder;
@@ -30,5 +31,7 @@ class PosEmbedding : public torch::nn::ModuleHolder<NpuRotaryEmbeddingImpl> {
   PosEmbedding(const Context& context)
       : ModuleHolder(std::make_shared<NpuRotaryEmbeddingImpl>(context)) {}
 };
+#endif
 
+}  // namespace layer
 }  // namespace xllm

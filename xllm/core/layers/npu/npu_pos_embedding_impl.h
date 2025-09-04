@@ -42,6 +42,7 @@ limitations under the License.
 #include "xllm_kernels/operations/fusion/embedding/positional_embedding.h"
 
 namespace xllm {
+namespace layer {
 
 class NpuRotaryEmbeddingImpl : public NpuBaseLayer {
  public:
@@ -75,4 +76,5 @@ class NpuRotaryEmbeddingImpl : public NpuBaseLayer {
   atb::Tensor internal_position;
 };
 
+}  // namespace layer
 }  // namespace xllm

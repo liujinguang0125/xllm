@@ -21,6 +21,7 @@ DECLARE_string(rank_tablefile);
 DECLARE_string(communication_backend);
 
 namespace xllm {
+namespace layer {
 
 void NpuLmHeadImpl::param_from_args(atb_speed::common::LmHeadParam& param,
                                     const ModelArgs& args,
@@ -230,4 +231,5 @@ void NpuLmHeadImpl::build_node_variant_pack(
       atb_speed::Utils::AtTensor2Tensor(atOutTensors_.at(0));
 }
 
+}  // namespace layer
 }  // namespace xllm

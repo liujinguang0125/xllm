@@ -38,6 +38,8 @@ limitations under the License.
 #include "xllm_kernels/operations/fusion/embedding/word_embedding.h"
 
 namespace xllm {
+namespace layer {
+
 class NpuWordEmbeddingImpl : public NpuBaseLayer {
  public:
   using Task = std::function<int()>;
@@ -79,4 +81,6 @@ class NpuWordEmbeddingImpl : public NpuBaseLayer {
   atb_speed::common::WordEmbeddingParam embedding_param_;
   atb::Tensor internalTensors;
 };
+
+}  // namespace layer
 }  // namespace xllm
