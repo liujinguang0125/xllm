@@ -771,8 +771,8 @@ class Qwen2_5_VLForConditionalGenerationImpl : public torch::nn::Module {
     }
   }
 
-  LmHead get_lm_head() { return language_model_->get_lm_head(); }
-  void set_lm_head(LmHead& head) { language_model_->set_lm_head(head); }
+  layer::LmHead get_lm_head() { return language_model_->get_lm_head(); }
+  void set_lm_head(layer::LmHead& head) { language_model_->set_lm_head(head); }
 
   layer::WordEmbedding get_word_embedding() {
     return language_model_->get_word_embedding();

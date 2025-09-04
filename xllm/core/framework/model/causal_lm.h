@@ -63,10 +63,10 @@ class CausalLM : public torch::nn::Module {
   virtual const torch::TensorOptions& options() const = 0;
 
 #if defined(USE_NPU)
-  virtual LmHead get_lm_head() = 0;
-  virtual void set_lm_head(LmHead& head) = 0;
-  virtual WordEmbedding get_word_embedding() = 0;
-  virtual void set_word_embedding(WordEmbedding& embedding) = 0;
+  virtual layer::LmHead get_lm_head() = 0;
+  virtual void set_lm_head(layer::LmHead& head) = 0;
+  virtual layer::LmHead get_word_embedding() = 0;
+  virtual void set_word_embedding(layer::LmHead& embedding) = 0;
 #endif
 };
 
@@ -102,15 +102,15 @@ class CausalLMImpl : public CausalLM {
   }
 
 #if defined(USE_NPU)
-  LmHead get_lm_head() override { return model_->get_lm_head(); };
+  layer::LmHead get_lm_head() override { return model_->get_lm_head(); };
 
-  void set_lm_head(LmHead& head) override { model_->set_lm_head(head); };
+  void set_lm_head(layer::LmHead& head) override { model_->set_lm_head(head); };
 
-  WordEmbedding get_word_embedding() override {
+  layer::LmHead get_word_embedding() override {
     return model_->get_word_embedding();
   };
 
-  void set_word_embedding(WordEmbedding& embedding) override {
+  void set_word_embedding(layer::LmHead& embedding) override {
     model_->set_word_embedding(embedding);
   };
 #endif

@@ -246,7 +246,7 @@ class DeepseekV2MtpForCausalLMImpl : public torch::nn::Module {
     context_->SetExecuteStream(stream);
     context_->SetAsyncTilingCopyStatus(true);
     // lm_head_ = register_module(
-    //     "lm_head", LmHead(context));
+    //     "lm_head", layer::LmHead(context));
   }
 
   // tokens: [num_tokens]
@@ -289,9 +289,9 @@ class DeepseekV2MtpForCausalLMImpl : public torch::nn::Module {
     return;
   }
   void update_expert_weight(int32_t layer_id) { return; }
-  LmHead get_lm_head() { return lm_head_; }
+  layer::LmHead get_lm_head() { return lm_head_; }
 
-  void set_lm_head(LmHead& head) { lm_head_ = head; }
+  void set_lm_head(layer::LmHead& head) { lm_head_ = head; }
 
   layer::WordEmbedding get_word_embedding() {
     return model_->get_word_embedding();
@@ -303,7 +303,7 @@ class DeepseekV2MtpForCausalLMImpl : public torch::nn::Module {
 
  private:
   DeepseekV2MtpModel model_{nullptr};
-  LmHead lm_head_{nullptr};
+  layer::LmHead lm_head_{nullptr};
   AtbWorkspace work_space_;
   atb::Context* context_;
 };

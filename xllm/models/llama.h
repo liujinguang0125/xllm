@@ -138,9 +138,9 @@ class LlamaModelImpl : public torch::nn::Module {
     //   options.dtype()).get_attn_mask(2048, options.device(),
     //   options.dtype());
     int32_t mask_value = FLAGS_enable_chunked_prefill ? -9984 : 1;
-    attn_mask_ = layer::layer::AttentionMask(options.device(),
-                                             options.dtype().toScalarType(),
-                                             /*mask_value=*/mask_value);
+    attn_mask_ = layer::AttentionMask(options.device(),
+                                      options.dtype().toScalarType(),
+                                      /*mask_value=*/mask_value);
     max_seq_len_ = 0;
     atb::Status st = atb::CreateContext(&context_);
     LOG_IF(ERROR, st != 0) << "ContextFactory create atb::Context fail";
@@ -278,7 +278,7 @@ class LlamaForCausalLMImpl : public torch::nn::Module {
     void* stream = c10_npu::getCurrentNPUStream(device_id_).stream();
     context_->SetExecuteStream(stream);
     context_->SetAsyncTilingCopyStatus(true);
-    lm_head_ = register_module("lm_head", LmHead(context));
+    lm_head_ = register_module("lm_head", layer::LmHead(context));
   }
   // tokens: [num_tokens]
   // positions: [num_tokens] token pos in the sequence
@@ -318,9 +318,9 @@ class LlamaForCausalLMImpl : public torch::nn::Module {
   }
   void update_expert_weight(int32_t layer_id) { return; }
 
-  LmHead get_lm_head() { return lm_head_; }
+  layer::LmHead get_lm_head() { return lm_head_; }
 
-  void set_lm_head(LmHead& head) { lm_head_ = head; }
+  void set_lm_head(layer::LmHead& head) { lm_head_ = head; }
 
   layer::WordEmbedding get_word_embedding() {
     return model_->get_word_embedding();
@@ -334,7 +334,7 @@ class LlamaForCausalLMImpl : public torch::nn::Module {
   // parameter members, must be registered
   LlamaModel model_{nullptr};
   int device_id_ = 0;
-  LmHead lm_head_{nullptr};
+  layer::LmHead lm_head_{nullptr};
   AtbWorkspace work_space_;
   atb::Context* context_;
 };

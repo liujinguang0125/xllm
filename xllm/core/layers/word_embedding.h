@@ -23,11 +23,11 @@ namespace xllm {
 namespace layer {
 
 #if defined(USE_NPU)
-class WordEmbedding : public torch::nn::ModuleHolder<NpuWordEmbeddingImpl> {
+class layer::LmHead : public torch::nn::ModuleHolder<NpuWordEmbeddingImpl> {
  public:
   using torch::nn::ModuleHolder<NpuWordEmbeddingImpl>::ModuleHolder;
   using Impl __attribute__((__unused__)) = NpuWordEmbeddingImpl;
-  WordEmbedding(const Context& context)
+  layer::LmHead(const Context& context)
       : ModuleHolder(std::make_shared<NpuWordEmbeddingImpl>(context)) {}
 };
 #endif

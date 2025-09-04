@@ -48,13 +48,13 @@ class LLMWorkerImpl : public WorkerImpl {
   std::optional<ForwardOutput> step(const ForwardInput& inputs) override;
 
 #if defined(USE_NPU)
-  LmHead get_lm_head() { return model_->get_lm_head(); };
+  layer::LmHead get_lm_head() { return model_->get_lm_head(); };
 
-  void set_lm_head(LmHead& head) { model_->set_lm_head(head); };
+  void set_lm_head(layer::LmHead& head) { model_->set_lm_head(head); };
 
-  WordEmbedding get_word_embedding() { return model_->get_word_embedding(); };
+  layer::LmHead get_word_embedding() { return model_->get_word_embedding(); };
 
-  void set_word_embedding(WordEmbedding& embedding) {
+  void set_word_embedding(layer::LmHead& embedding) {
     model_->set_word_embedding(embedding);
   };
 #elif defined(USE_MLU)

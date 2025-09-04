@@ -345,7 +345,7 @@ class QWenForCausalLMImplBase : public torch::nn::Module {
     void* stream = c10_npu::getCurrentNPUStream(device_id).stream();
     context_->SetExecuteStream(stream);
     context_->SetAsyncTilingCopyStatus(true);
-    lm_head_ = register_module("lm_head", LmHead(context));
+    lm_head_ = register_module("lm_head", layer::LmHead(context));
   }
 
   torch::Tensor get_input_embeddings(torch::Tensor input_ids) {
@@ -402,9 +402,9 @@ class QWenForCausalLMImplBase : public torch::nn::Module {
   }
   virtual void update_expert_weight(int32_t layer_id) { return; }
 
-  virtual LmHead get_lm_head() { return lm_head_; }
+  virtual layer::LmHead get_lm_head() { return lm_head_; }
 
-  virtual void set_lm_head(LmHead& head) { lm_head_ = head; }
+  virtual void set_lm_head(layer::LmHead& head) { lm_head_ = head; }
 
   virtual layer::WordEmbedding get_word_embedding() {
     return model_->get_word_embedding();
@@ -420,7 +420,7 @@ class QWenForCausalLMImplBase : public torch::nn::Module {
   int device_id = 0;
   bool tie_word_embeddings{false};
   // test
-  LmHead lm_head_{nullptr};
+  layer::LmHead lm_head_{nullptr};
   AtbWorkspace work_space_;
   atb::Context* context_;
 };

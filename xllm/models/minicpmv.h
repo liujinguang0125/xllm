@@ -1249,9 +1249,9 @@ class MiniCPMV2_6Impl : public torch::nn::Module {
     vpm_->verify_loaded_weights("vpm.");
   }
 
-  LmHead get_lm_head() { return language_model_->get_lm_head(); }
+  layer::LmHead get_lm_head() { return language_model_->get_lm_head(); }
 
-  void set_lm_head(LmHead& head) { language_model_->set_lm_head(head); }
+  void set_lm_head(layer::LmHead& head) { language_model_->set_lm_head(head); }
 
   layer::WordEmbedding get_word_embedding() {
     return language_model_->get_word_embedding();
