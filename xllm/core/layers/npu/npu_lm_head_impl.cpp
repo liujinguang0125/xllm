@@ -131,7 +131,7 @@ int64_t NpuLmHeadImpl::init_layer() {
 int64_t NpuLmHeadImpl::init_node(atb_speed::Model::Node& node,
                                  atb_speed::common::LmHeadParam& param) {
   atb::Operation* operation = nullptr;
-  atb::Status atbStatus = atb_speed::common::layer::LmHead(param, &operation);
+  atb::Status atbStatus = atb_speed::common::LmHead(param, &operation);
   if (atbStatus != atb::NO_ERROR) {
     return atbStatus;
   }

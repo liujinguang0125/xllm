@@ -23,12 +23,12 @@ namespace xllm {
 namespace layer {
 
 #if defined(USE_NPU)
-class layer::LmHead : public torch::nn::ModuleHolder<NpuLmHeadImpl> {
+class LmHead : public torch::nn::ModuleHolder<NpuLmHeadImpl> {
  public:
   using torch::nn::ModuleHolder<NpuLmHeadImpl>::ModuleHolder;
   using Impl __attribute__((__unused__)) = NpuLmHeadImpl;
 
-  layer::LmHead(const Context& context)
+  LmHead(const Context& context)
       : ModuleHolder(std::make_shared<NpuLmHeadImpl>(context)) {}
 };
 #endif

@@ -90,7 +90,7 @@ class DeepseekV2MtpModelImpl : public torch::nn::Module {
     eh_proj_ = register_module("eh_proj", layer::ColumnParallelLinear(context));
     enorm_ = register_module("enorm", layer::RmsNorm(context));
     hnorm_ = register_module("hnorm", layer::RmsNorm(context));
-    final_norm_ = register_module("final_norm", RmsNorm(context));
+    final_norm_ = register_module("final_norm", layer::RmsNorm(context));
 
     // dp_size_=4;
     dp_size_ = parallel_args.dp_size();

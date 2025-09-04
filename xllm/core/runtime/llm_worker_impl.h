@@ -52,9 +52,11 @@ class LLMWorkerImpl : public WorkerImpl {
 
   void set_lm_head(layer::LmHead& head) { model_->set_lm_head(head); };
 
-  layer::LmHead get_word_embedding() { return model_->get_word_embedding(); };
+  layer::WordEmbedding get_word_embedding() {
+    return model_->get_word_embedding();
+  };
 
-  void set_word_embedding(layer::LmHead& embedding) {
+  void set_word_embedding(layer::WordEmbedding& embedding) {
     model_->set_word_embedding(embedding);
   };
 #elif defined(USE_MLU)

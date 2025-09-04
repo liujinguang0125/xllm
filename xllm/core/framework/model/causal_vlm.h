@@ -69,11 +69,11 @@ class CausalVLMImpl : public CausalVLM {
 
   void set_lm_head(layer::LmHead& head) override { model_->set_lm_head(head); };
 
-  layer::LmHead get_word_embedding() override {
+  layer::WordEmbedding get_word_embedding() override {
     return model_->get_word_embedding();
   };
 
-  void set_word_embedding(layer::LmHead& embedding) override {
+  void set_word_embedding(layer::WordEmbedding& embedding) override {
     model_->set_word_embedding(embedding);
   };
 #endif
