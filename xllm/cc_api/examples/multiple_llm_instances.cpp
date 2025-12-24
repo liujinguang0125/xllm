@@ -15,8 +15,10 @@ limitations under the License.
 
 #include <unistd.h>
 
+#include <chrono>
 #include <iostream>
 #include <memory>
+#include <thread>
 
 #include "llm.h"
 #include "service_request.h"
@@ -27,7 +29,7 @@ limitations under the License.
  */
 
 std::string devices = "npu:0";
-std::string model_path = "/export/home/models/Qwen3-8B";
+std::string model_path = "/export/home/models/Qwen3-4B";
 
 int main(int argc, char** argv) {
   std::cout << "Start to bootup the first LLM instance." << std::endl;
@@ -42,12 +44,19 @@ int main(int argc, char** argv) {
   }
   std::cout << "LLM init succefully." << std::endl;
 
-  const std::string model_name = "Qwen3-8B";
+  const std::string model_name = "Qwen3-4B";
 
-  xllm::cc_api_test::run_completion_request(model_name, llm_instance_01.get());
+  int count = 0;
 
-  xllm::cc_api_test::run_chat_completion_request(model_name,
-                                                 llm_instance_01.get());
+  while (count++ < 10) {
+    xllm::cc_api_test::run_completion_request(model_name,
+                                              llm_instance_01.get());
+    std::this_thread::sleep_for(std::chrono::seconds(2));
+
+    xllm::cc_api_test::run_chat_completion_request(model_name,
+                                                   llm_instance_01.get());
+    std::this_thread::sleep_for(std::chrono::seconds(2));
+  }
 
   std::cout << "Start to bootup the second LLM instance." << std::endl;
 

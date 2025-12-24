@@ -30,7 +30,7 @@ void run_completion_request(const std::string& model_name,
   xllm::XLLM_RequestParams params;
   params.max_tokens = 500;
   xllm::XLLM_Response response =
-      llm_instance->Completions(model_name, prompt, 20000, params);
+      llm_instance->Completions(model_name, prompt, 2000, params);
 
   if (response.status_code != xllm::XLLM_StatusCode::kSuccess) {
     std::cout << "LLM completions failed, error info: " << response.error_info
@@ -73,7 +73,7 @@ void run_chat_completion_request(const std::string& model_name,
   params.max_tokens = 100;
 
   xllm::XLLM_Response response =
-      llm_instance->ChatCompletions(model_name, messages, 20000, params);
+      llm_instance->ChatCompletions(model_name, messages, 2000, params);
 
   if (response.status_code != xllm::XLLM_StatusCode::kSuccess) {
     std::cout << "LLM completions failed, error info: " << response.error_info
