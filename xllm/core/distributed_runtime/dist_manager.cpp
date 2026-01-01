@@ -17,6 +17,8 @@ limitations under the License.
 
 #include <glog/logging.h>
 
+#include <cstddef>
+
 #include "comm_channel.h"
 #include "distributed_runtime/collective_service.h"
 #include "framework/parallel_state/parallel_args.h"
@@ -44,9 +46,14 @@ DistManager::~DistManager() {
   XllmServer* collective_server =
       ServerRegistry::get_instance().get_server(server_name_);
   if (collective_server != nullptr) {
+    LOG(INFO) << "Stop collective server " << server_name_;
     collective_server->stop();
 
     ServerRegistry::get_instance().unregister_server(server_name_);
+  }
+
+  for (size_t i = 0; i < servers_.size(); ++i) {
+    servers_[i]->stop();
   }
 }
 
@@ -157,7 +164,7 @@ void DistManager::setup_multi_node_workers(
   }
 
   // Master node need to wait all workers done
-  if (options.node_rank() == 0) {
+  if (options.node_rank() == 0 && options.world_size() > 1) {
     // if dp_size equals 1, use global process group directly
     // if dp_size equals world_size, distributed communication is not required
     auto dp_local_process_group_num =
@@ -169,7 +176,8 @@ void DistManager::setup_multi_node_workers(
             dp_local_process_group_num, world_size, devices[0].index());
     XllmServer* collective_server =
         ServerRegistry::get_instance().register_server(server_name_);
-    if (!collective_server->start(collective_service, master_node_addr)) {
+    if (!collective_server->start(
+            collective_service, master_node_addr, server_name_)) {
       LOG(ERROR) << "failed to start collective server on address: "
                  << master_node_addr;
       return;
@@ -201,4 +209,5 @@ void DistManager::setup_multi_node_workers(
     }
   }
 }
+
 }  // namespace xllm

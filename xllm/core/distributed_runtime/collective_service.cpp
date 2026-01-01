@@ -27,15 +27,23 @@ CollectiveService::CollectiveService(int dp_group_num,
                                      int device_idx)
     : total_num_(total_num) {
 #if defined(USE_NPU)
-  root_infos_.reserve(dp_group_num + 1);
-  for (size_t i = 0; i < (dp_group_num + 1); ++i) {
-    HcclRootInfo root_info;
-    auto error = aclrtSetDevice(device_idx);
-    CHECK_EQ(error, ACL_SUCCESS)
-        << "ACL set device id " << device_idx << " failed. Error : " << error;
-    auto status = HcclGetRootInfo(&root_info);
-    CHECK_EQ(status, HCCL_SUCCESS) << "HCCL get root info failed.";
-    root_infos_.push_back(root_info);
+  // FIXEDME: xLLM is used as an infer engine in the generative recommandation
+  // scene. It usually uses only one card and creates one LLM engine for each
+  // model with one special version. we found an issue about HCCL which may fork
+  // an children process and holds some sockets resource, so it fails to destroy
+  // LLM instance correctly, so we add total_num check here to avoid initilizing
+  // HCCL here. It will be removed after Ascend fixes the issue.
+  if (total_num > 1) {
+    root_infos_.reserve(dp_group_num + 1);
+    for (size_t i = 0; i < (dp_group_num + 1); ++i) {
+      HcclRootInfo root_info;
+      auto error = aclrtSetDevice(device_idx);
+      CHECK_EQ(error, ACL_SUCCESS)
+          << "ACL set device id " << device_idx << " failed. Error : " << error;
+      auto status = HcclGetRootInfo(&root_info);
+      CHECK_EQ(status, HCCL_SUCCESS) << "HCCL get root info failed.";
+      root_infos_.push_back(root_info);
+    }
   }
 #endif
 }
@@ -53,7 +61,9 @@ void CollectiveService::Sync(::google::protobuf::RpcController* controller,
     addrs_map_[global_rank] = address;
   }
 #if defined(USE_NPU)
-  to_proto_list(root_infos_, response);
+  if (total_num_ > 1) {
+    to_proto_list(root_infos_, response);
+  }
 #endif
 }
 

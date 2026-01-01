@@ -62,6 +62,8 @@ class WorkerServer {
       std::unique_ptr<ForwardSharedMemoryManager> input_shm_manager,
       std::unique_ptr<ForwardSharedMemoryManager> output_shm_manager);
 
+  void stop();
+
  private:
   DISALLOW_COPY_AND_ASSIGN(WorkerServer);
 
@@ -94,6 +96,7 @@ class WorkerServer {
   bool use_spwan_worker_ = false;
   posix_spawn_file_actions_t file_actions_;
   posix_spawnattr_t spawn_attr_;
+  pid_t spawn_pid_ = -1;
   std::string server_name_;
 };
 

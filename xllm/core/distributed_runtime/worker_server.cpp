@@ -21,6 +21,8 @@ limitations under the License.
 #include <folly/futures/Future.h>
 #include <gflags/gflags.h>
 #include <glog/logging.h>
+#include <signal.h>
+#include <sys/wait.h>
 #include <torch/torch.h>
 #include <unistd.h>
 
@@ -120,6 +122,14 @@ void WorkerServer::create_server(
   worker_server->run();
 }
 
+void WorkerServer::stop() {
+  auto worker_server = ServerRegistry::get_instance().get_server(server_name_);
+
+  worker_server->stop();
+
+  ServerRegistry::get_instance().unregister_server(server_name_);
+}
+
 void WorkerServer::create_spawn_server(int local_rank,
                                        const std::string& master_node_addr,
                                        std::atomic<bool>& done,
@@ -160,10 +170,9 @@ void WorkerServer::create_spawn_server(int local_rank,
                         options.task_type().c_str(),
                         worker_type_ptr,
                         nullptr};
-  pid_t pid;
   posix_spawn_file_actions_init(&file_actions_);
   posix_spawnattr_init(&spawn_attr_);
-  int status = posix_spawnp(&pid,
+  int status = posix_spawnp(&spawn_pid_,
                             argv[0],
                             &file_actions_,
                             &spawn_attr_,
@@ -305,21 +314,58 @@ bool WorkerServer::sync_master_node(const std::string& master_node_addr,
 }
 
 WorkerServer::~WorkerServer() {
+  auto worker_server = ServerRegistry::get_instance().get_server(server_name_);
+  if (worker_server != nullptr) {
+    worker_server->stop();
+  }
+
   if (worker_thread_->joinable()) {
     worker_thread_->join();
   }
 
   if (use_spwan_worker_) {
+    if (spawn_pid_ > 0) {
+      LOG(INFO) << "Sending SIGTERM to spawn process " << spawn_pid_;
+      kill(spawn_pid_, SIGTERM);
+
+      // wait children process to quit.
+      int status;
+      int wait_time = 0;
+      const int max_wait_time = 5;
+
+      while (wait_time < max_wait_time) {
+        pid_t result = waitpid(spawn_pid_, &status, WNOHANG);
+        if (result == spawn_pid_) {
+          LOG(INFO) << "Spawn process " << spawn_pid_ << " exited with status "
+                    << WEXITSTATUS(status);
+          break;
+        } else if (result == 0) {
+          sleep(1);
+          wait_time++;
+        } else if (result == -1 && errno == ECHILD) {
+          LOG(WARNING) << "Spawn process " << spawn_pid_ << " does not exist";
+          break;
+        } else {
+          LOG(ERROR) << "waitpid failed for process " << spawn_pid_ << ": "
+                     << strerror(errno);
+          break;
+        }
+      }
+
+      // I the children process still runs，the system will send SIGKILL signal
+      // to force it quit.
+      if (wait_time >= max_wait_time) {
+        LOG(WARNING) << "Spawn process " << spawn_pid_
+                     << " did not exit gracefully, sending SIGKILL";
+        kill(spawn_pid_, SIGKILL);
+        waitpid(spawn_pid_, &status, 0);
+      }
+    }
     posix_spawn_file_actions_destroy(&file_actions_);
     posix_spawnattr_destroy(&spawn_attr_);
   }
 
-  auto worker_server = ServerRegistry::get_instance().get_server(server_name_);
-  if (worker_server != nullptr) {
-    worker_server->stop();
-
-    ServerRegistry::get_instance().unregister_server(server_name_);
-  }
+  ServerRegistry::get_instance().unregister_server(server_name_);
 }
 
 }  // namespace xllm
