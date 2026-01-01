@@ -700,9 +700,20 @@ ForwardOutput LLMEngine::step(std::vector<Batch>& batch) {
     return {};
   }
   Timer timer;
+
   DCHECK(dp_size_ == batch.size())
       << "Split DP batch failed with dp_size as " << dp_size_
       << " and actual batch size as " << batch.size() << ".";
+
+  // run local mode
+  if (worker_clients_.size() == 1) {
+    ForwardInput forward_input = worker_clients_[0]->prepare_inputs(batch[0]);
+
+    std::optional<ForwardOutput> forward_output =
+        worker_clients_[0]->step(forward_input);
+
+    return forward_output.value();
+  }
 
   auto raw_forward_inputs = prepare_inputs(batch);
   DCHECK(dp_size_ == raw_forward_inputs.size())

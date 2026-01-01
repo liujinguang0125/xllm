@@ -18,6 +18,7 @@ limitations under the License.
 namespace xllm {
 
 XllmServer* ServerRegistry::register_server(const std::string& name) {
+  LOG(INFO) << "Register server " << name;
   {
     std::lock_guard<std::mutex> lock(mutex_);
     if (servers_.find(name) != servers_.end()) {
@@ -32,6 +33,7 @@ XllmServer* ServerRegistry::register_server(const std::string& name) {
 }
 
 void ServerRegistry::unregister_server(const std::string& name) {
+  LOG(INFO) << "Unregister server " << name;
   {
     std::lock_guard<std::mutex> lock(mutex_);
     auto iter = servers_.find(name);

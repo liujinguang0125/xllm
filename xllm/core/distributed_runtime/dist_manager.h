@@ -37,6 +37,9 @@ class DistManager {
   void setup_multi_node_workers(const runtime::Options& options,
                                 const std::string& master_node_addr);
 
+  // set up single node worker which is used in the recommandation scene.
+  void setup_single_node_worker(const runtime::Options& options);
+
  private:
   // a list of process groups, with each process group handling a single device
   std::vector<std::unique_ptr<ProcessGroup>> process_groups_;

@@ -17,6 +17,8 @@ limitations under the License.
 
 #include <glog/logging.h>
 
+#include <cstddef>
+
 #include "comm_channel.h"
 #include "distributed_runtime/collective_service.h"
 #include "framework/parallel_state/parallel_args.h"
@@ -31,12 +33,17 @@ namespace xllm {
 
 DistManager::DistManager(const runtime::Options& options)
     : server_name_("CollectiveServer") {
-  auto master_node_addr = options.master_node_addr().value_or("");
-  if (!master_node_addr.empty()) {
-    server_name_.append(std::to_string(options.server_idx()));
-    setup_multi_node_workers(options, master_node_addr);
+  if (options.world_size() == 1) {
+    LOG(INFO) << "===== setup_single_node_worker";
+    setup_single_node_worker(options);
   } else {
-    LOG(FATAL) << "master_node_addr is empty.";
+    auto master_node_addr = options.master_node_addr().value_or("");
+    if (!master_node_addr.empty()) {
+      server_name_.append(std::to_string(options.server_idx()));
+      setup_multi_node_workers(options, master_node_addr);
+    } else {
+      LOG(FATAL) << "master_node_addr is empty.";
+    }
   }
 }
 
@@ -44,9 +51,14 @@ DistManager::~DistManager() {
   XllmServer* collective_server =
       ServerRegistry::get_instance().get_server(server_name_);
   if (collective_server != nullptr) {
+    LOG(INFO) << "Stop collective server " << server_name_;
     collective_server->stop();
 
     ServerRegistry::get_instance().unregister_server(server_name_);
+  }
+
+  for (size_t i = 0; i < servers_.size(); ++i) {
+    servers_[i]->stop();
   }
 }
 
@@ -169,7 +181,8 @@ void DistManager::setup_multi_node_workers(
             dp_local_process_group_num, world_size, devices[0].index());
     XllmServer* collective_server =
         ServerRegistry::get_instance().register_server(server_name_);
-    if (!collective_server->start(collective_service, master_node_addr)) {
+    if (!collective_server->start(
+            collective_service, master_node_addr, server_name_)) {
       LOG(ERROR) << "failed to start collective server on address: "
                  << master_node_addr;
       return;
@@ -201,4 +214,28 @@ void DistManager::setup_multi_node_workers(
     }
   }
 }
+
+void DistManager::setup_single_node_worker(const runtime::Options& options) {
+  WorkerType worker_type("LLM");
+  const auto& model_backend = options.backend();
+  if (model_backend == "llm") {
+    worker_type =
+        (options.task_type() == "generate") ? WorkerType::LLM : WorkerType::ELM;
+  } else if (model_backend == "vlm") {
+    worker_type = (options.task_type() == "generate") ? WorkerType::VLM
+                                                      : WorkerType::EVLM;
+  } else {
+    LOG(ERROR) << "Unsupported " << model_backend << " in single-node.";
+  }
+
+  ParallelArgs parallel_args(
+      options.node_rank(), options.world_size(), nullptr);
+
+  workers_.emplace_back(std::make_unique<Worker>(
+      parallel_args, options.devices()[0], options, worker_type));
+
+  worker_clients_.emplace_back(
+      std::make_unique<WorkerClient>(workers_[0].get()));
+}
+
 }  // namespace xllm
