@@ -60,6 +60,7 @@ cc_library(
     proto::xllm_proto
     :platform
     SMHasherSupport
+    xxHash
 )
 
 cc_test(
