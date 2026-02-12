@@ -205,7 +205,7 @@ enum class TransferType : uint8_t {
 struct BlockTransferInfo {
   int32_t src_block_id = -1;
   int32_t dst_block_id = -1;
-  uint8_t hash_key[MURMUR_HASH3_VALUE_LEN];
+  uint8_t hash_key[XXH3_128BITS_HASH_VALUE_LEN];
   TransferType transfer_type;
 
   BlockTransferInfo(int32_t src_block_id, int32_t dst_block_id) {
@@ -218,21 +218,21 @@ struct BlockTransferInfo {
                     const uint8_t* key,
                     TransferType type)
       : src_block_id(src_id), dst_block_id(dst_id), transfer_type(type) {
-    memcpy(hash_key, key, MURMUR_HASH3_VALUE_LEN);
+    memcpy(hash_key, key, XXH3_128BITS_HASH_VALUE_LEN);
   }
 
   BlockTransferInfo(const BlockTransferInfo& other)
       : src_block_id(other.src_block_id),
         dst_block_id(other.dst_block_id),
         transfer_type(other.transfer_type) {
-    memcpy(hash_key, other.hash_key, MURMUR_HASH3_VALUE_LEN);
+    memcpy(hash_key, other.hash_key, XXH3_128BITS_HASH_VALUE_LEN);
   }
 
   BlockTransferInfo(BlockTransferInfo&& other)
       : src_block_id(other.src_block_id),
         dst_block_id(other.dst_block_id),
         transfer_type(other.transfer_type) {
-    memcpy(hash_key, other.hash_key, MURMUR_HASH3_VALUE_LEN);
+    memcpy(hash_key, other.hash_key, XXH3_128BITS_HASH_VALUE_LEN);
 
     other.src_block_id = -1;
     other.dst_block_id = -1;
@@ -242,7 +242,7 @@ struct BlockTransferInfo {
     src_block_id = other.src_block_id;
     dst_block_id = other.dst_block_id;
     transfer_type = other.transfer_type;
-    memcpy(hash_key, other.hash_key, MURMUR_HASH3_VALUE_LEN);
+    memcpy(hash_key, other.hash_key, XXH3_128BITS_HASH_VALUE_LEN);
     return *this;
   }
 
@@ -250,7 +250,7 @@ struct BlockTransferInfo {
     src_block_id = other.src_block_id;
     dst_block_id = other.dst_block_id;
     transfer_type = other.transfer_type;
-    memcpy(hash_key, other.hash_key, MURMUR_HASH3_VALUE_LEN);
+    memcpy(hash_key, other.hash_key, XXH3_128BITS_HASH_VALUE_LEN);
 
     other.src_block_id = -1;
     other.dst_block_id = -1;
