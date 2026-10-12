@@ -17,14 +17,14 @@ limitations under the License. -->
 <div align="center">
 <img src="assets/logo_with_llm.png" alt="xLLM" style="width:50%; height:auto;">
     
-[![Document](https://img.shields.io/badge/Document-black?logo=html5&labelColor=grey&color=red)](https://docs.xllm-ai.com/) [![Docker](https://img.shields.io/badge/Docker-black?logo=docker&labelColor=grey&color=%231E90FF)](https://quay.io/repository/jd_xllm/xllm-ai?tab=tags) [![License](https://img.shields.io/badge/license-Apache%202.0-brightgreen?labelColor=grey)](https://opensource.org/licenses/Apache-2.0) [![report](https://img.shields.io/badge/Technical%20Report-red?logo=arxiv&logoColor=%23B31B1B&labelColor=%23F0EBEB&color=%23D42626)](https://arxiv.org/abs/2510.14686) [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/xLLM-AI/xllm)
+[![Document](https://img.shields.io/badge/Document-black?logo=html5&labelColor=grey&color=red)](https://docs.xllm-ai.com/) [![Docker](https://img.shields.io/badge/Docker-black?logo=docker&labelColor=grey&color=%231E90FF)](https://quay.io/repository/jd_xllm/xllm-ai?tab=tags) [![License](https://img.shields.io/badge/license-Apache%202.0-brightgreen?labelColor=grey)](https://opensource.org/licenses/Apache-2.0) [![report](https://img.shields.io/badge/Technical%20Report-red?logo=arxiv&logoColor=%23B31B1B&labelColor=%23F0EBEB&color=%23D42626)](https://arxiv.org/abs/2510.14686) [![Ask DeepWiki](https://img.shields.io/badge/Ask-DeepWiki-4b72f3)](https://deepwiki.com/xLLM-AI/xllm)
     
 </div>
 
 ---------------------
 
 
-### 📢 新闻
+## 新闻
 <!-- only keep the latest 3 news, others should be folded -->
 - 2026-08-27: 🎉  我们 day-0 支持了[GLM-5.3-Flash](https://modelscope.cn/models/ZhipuAI/GLM-5.3-Flash)模型的推理服务，部署请参考[部署文档](https://github.com/xLLM-AI/xllm/blob/preview/glm-5.3-flash/testspace/run_glm_53_flash.sh)。
 - 2026-07-06: 🎉 xLLM 正式捐赠给开放原子开源基金会！
