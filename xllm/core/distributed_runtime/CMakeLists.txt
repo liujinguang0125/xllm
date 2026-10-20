@@ -89,6 +89,8 @@ cc_library(
     :api_response
     :worker_model_codec
     :models
+    :model_loader
+    :speculative
     :parallel_config_validation
     :runtime
     :scheduler
@@ -166,6 +168,7 @@ cc_library(
     :request
     :runtime
     :model
+    :model_loader
     :models
     :parallel_config_validation
     $<$<BOOL:${USE_NPU}>:npu_layers>
