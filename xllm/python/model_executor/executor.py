@@ -36,6 +36,7 @@ from xllm.python.model_executor.forward_context import (
     forward_context,
 )
 from xllm.python.model_executor.runners.base import ModelExecutionOutput
+from xllm.python.model_executor.runners.decode_cuda_graph import DecodeCudaGraphRunner
 from xllm.python.model_executor.runners.eager import EagerRunner
 from xllm.python.model_executor.runners.mtp_acl_graph import (
     ActivateFn,
@@ -191,6 +192,7 @@ def _create_attention_backend(
             sliding_window=first_attention.sliding_window,
             device=device,
             dtype=dtype,
+            kv_cache_storage_head_dim=int(config.get("kv_cache_storage_head_dim", 0)),
         )
     raise NotImplementedError(f"No attention backend available for device type '{device.type}'")
 
@@ -405,10 +407,6 @@ class ModelExecutor:
         if graph_backend in ("", "off", "none", "0"):
             pass
         elif graph_backend == "cudagraphs":
-            from xllm.python.model_executor.runners.decode_cuda_graph import (
-                DecodeCudaGraphRunner,
-            )
-
             self.decode_graph_runner = DecodeCudaGraphRunner(
                 execution_model,
                 self.attention_backend,
@@ -802,6 +800,12 @@ class ModelExecutor:
         self.eager_runner.bind_layer_caches(layer_caches)
         if self.decode_graph_runner is not None:
             self.decode_graph_runner.bind_layer_caches(layer_caches)
+            if isinstance(self.decode_graph_runner, DecodeCudaGraphRunner):
+                # Capture before prefill populates live KV state. CUDA decode
+                # admission only accepts buckets captured during startup.
+                parameter = next(self.model.parameters())
+                with torch.inference_mode():
+                    self.decode_graph_runner.warmup(parameter.device, parameter.dtype)
         if self.prepared_graph_runner is not None:
             self.prepared_graph_runner.bind_layer_caches(layer_caches)
         if self.inductor_runner is not None:
@@ -878,8 +882,6 @@ class ModelExecutor:
             and (eplb is None or current_platform.is_npu())
             and graph_runner.can_execute(input_ids, metadata, input_embedding, **graph_kwargs)
         ):
-            from xllm.python.model_executor.runners.decode_cuda_graph import DecodeCudaGraphRunner
-
             graph_key = None
             # CUDA can_execute only admits previously captured buckets. ACL
             # captures lazily with scheduler metadata and MTP inputs.

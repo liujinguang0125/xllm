@@ -18,9 +18,6 @@ limitations under the License.
 #include "core/layers/npu/npu_lm_head_impl.h"
 #include "core/layers/npu/npu_word_embedding_impl.h"
 #endif
-#include "core/layers/common/lm_head.h"
-#include "core/layers/common/word_embedding.h"
-
 #include <torch/torch.h>
 
 #include <cstdint>
@@ -29,6 +26,8 @@ limitations under the License.
 
 #include "common/macros.h"
 #include "core/framework/model_loader/model_loader.h"
+#include "core/layers/common/lm_head.h"
+#include "core/layers/common/word_embedding.h"
 
 namespace xllm {
 
